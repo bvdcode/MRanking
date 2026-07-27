@@ -399,23 +399,51 @@ async function innertubeCall(
     headers,
     body: JSON.stringify(body),
   } satisfies RequestInit;
-  let response = await fetch(endpoint, request);
+  const attempts: { host: string; status: number | "network" }[] = [];
+  let response: Response | null = null;
 
-  if (!response.ok && new URL(endpoint).hostname === "youtubei.googleapis.com") {
-    const fallback = new URL(endpoint);
-    fallback.hostname = clientName === "67" ? "music.youtube.com" : "www.youtube.com";
-    response = await fetch(fallback, request);
+  for (const candidate of innertubeEndpoints(endpoint, clientName)) {
+    try {
+      response = await fetch(candidate, request);
+    } catch (error) {
+      if (signal?.aborted) throw error;
+      attempts.push({ host: candidate.hostname, status: "network" });
+      continue;
+    }
+    if (response.ok) return response.json() as Promise<JsonObject>;
+
+    attempts.push({ host: candidate.hostname, status: response.status });
+    if (!isRetryableYouTubeStatus(response.status)) break;
   }
-  if (!response.ok) {
-    console.warn("YouTube upstream request failed", {
-      path: new URL(endpoint).pathname,
-      status: response.status,
-    });
-    if (response.status === 404)
-      throw new Error("The YouTube page was not found");
-    throw new Error("YouTube did not return this page");
+
+  console.warn("YouTube upstream request failed", {
+    path: new URL(endpoint).pathname,
+    attempts,
+  });
+  if (response?.status === 404) {
+    throw new Error("The YouTube page was not found");
   }
-  return response.json() as Promise<JsonObject>;
+  throw new Error("YouTube did not return this page");
+}
+
+function innertubeEndpoints(endpoint: string, clientName: string) {
+  const requested = new URL(endpoint);
+  const hosts = [
+    requested.hostname,
+    "www.youtube-nocookie.com",
+    "m.youtube.com",
+    clientName === "67" ? "music.youtube.com" : "www.youtube.com",
+  ];
+
+  return [...new Set(hosts)].map((hostname) => {
+    const candidate = new URL(requested);
+    candidate.hostname = hostname;
+    return candidate;
+  });
+}
+
+function isRetryableYouTubeStatus(status: number) {
+  return status === 403 || status === 408 || status === 429 || status >= 500;
 }
 
 function findChannelMetadata(root: unknown): JsonObject {
