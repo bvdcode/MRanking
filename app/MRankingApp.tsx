@@ -2949,8 +2949,14 @@ function TournamentBracket({
   useEffect(() => {
     const element = fitRef.current;
     if (!element) return;
-    const updateScale = () =>
-      setFitScale(Math.min(1, Math.max(0.2, (element.clientWidth - 28) / boardWidth)));
+    const updateScale = () => {
+      const fittedScale = (element.clientWidth - 28) / boardWidth;
+      setFitScale(
+        element.clientWidth <= 720
+          ? Math.min(0.72, Math.max(0.58, fittedScale))
+          : Math.min(1, Math.max(0.2, fittedScale)),
+      );
+    };
     updateScale();
     const observer = new ResizeObserver(updateScale);
     observer.observe(element);
@@ -3006,7 +3012,12 @@ function TournamentBracket({
       <div className="bracket-fit" ref={fitRef} aria-label={t("Full tournament bracket")}>
         <div
           className="bracket-fit-height"
-          style={{ height: `${boardHeight * fitScale}px` }}
+          style={
+            {
+              height: `${boardHeight * fitScale}px`,
+              "--bracket-scaled-width": `${boardWidth * fitScale}px`,
+            } as React.CSSProperties
+          }
         >
           <div
             className="bracket-canvas"

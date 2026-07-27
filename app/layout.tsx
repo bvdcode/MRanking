@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, Syne } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
@@ -12,6 +12,14 @@ const syne = Syne({
   variable: "--font-display",
   subsets: ["latin"],
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  colorScheme: "dark",
+  themeColor: "#080909",
+};
 
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();

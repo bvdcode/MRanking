@@ -114,6 +114,22 @@ test("home supporting copy is deliberately larger", async () => {
   assert.match(styles, /\.button\.jumbo \{[^}]*font-size: 15px/);
 });
 
+test("mobile layout is touch-first and respects phone safe areas", async () => {
+  const [layout, client, styles] = await Promise.all([
+    readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/MRankingApp.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+  assert.match(layout, /viewportFit: "cover"/);
+  assert.match(styles, /@media \(max-width: 640px\)/);
+  assert.match(styles, /env\(safe-area-inset-bottom\)/);
+  assert.match(styles, /\.duel-board \{ grid-template-columns: 1fr/);
+  assert.match(styles, /\.profile-playlist-grid \{ grid-template-columns: repeat\(2/);
+  assert.match(styles, /\.bracket-fit-height \{ width: max\(100%,var\(--bracket-scaled-width/);
+  assert.match(client, /element\.clientWidth <= 720/);
+  assert.match(client, /"--bracket-scaled-width"/);
+});
+
 test("profile playlist picker keeps artwork square and titles readable", async () => {
   const styles = await readFile(
     new URL("../app/globals.css", import.meta.url),
