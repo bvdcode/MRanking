@@ -99,6 +99,9 @@ test("client includes the private playlist-to-tournament flow", async () => {
   );
   assert.match(kingLibrary, /onStart/);
   assert.match(kingLibrary, /onContinue/);
+  assert.match(kingLibrary, /className="pack-tile add-pack-tile"/);
+  assert.match(kingLibrary, /onClick=\{onPacks\}/);
+  assert.match(kingLibrary, /Add a pack/);
   assert.match(kingLibrary, /<FlowBack label="Back"/);
   assert.doesNotMatch(source, /DEMO_PACKS|VLAD_HOBBIES|POP_PUNK_TOP_64/);
 });

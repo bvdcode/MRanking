@@ -293,6 +293,17 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .pack-actions button { border: 0; border-bottom: 1px solid #525953; background: none; padding: 0 0 2px; color: #a4aaa5; text-transform: uppercase; letter-spacing: .08em; font-size: 7px; cursor: pointer; }
 .pack-actions button:hover, .pack-actions button.continue { color: var(--acid); border-color: var(--acid); }
 .pack-actions button.danger:hover { color: var(--coral); border-color: var(--coral); }
+.add-pack-tile { min-height: 389px; border-style: dashed; padding: 28px; display: grid; place-items: center; align-content: center; gap: 12px; color: #8b938c; text-align: center; cursor: pointer; position: relative; overflow: hidden; }
+.add-pack-tile::before { content: ""; width: 260px; height: 260px; position: absolute; border: 1px solid #323832; border-radius: 50%; opacity: .65; }
+.add-pack-tile::after { content: ""; width: 190px; height: 190px; position: absolute; border: 1px solid #3c4438; border-radius: 50%; opacity: .75; }
+.add-pack-tile > * { position: relative; z-index: 2; }
+.add-pack-plus { width: 96px; height: 96px; border: 1px solid #4e5848; background: #171b16; color: var(--acid); display: grid; place-items: center; font: 300 76px/.8 var(--font-body); transition: transform .22s ease, color .22s ease, background .22s ease; }
+.add-pack-tile strong { margin-top: 8px; color: var(--paper); font: 800 27px var(--font-display); text-transform: uppercase; }
+.add-pack-tile small { max-width: 210px; font-size: 10px; line-height: 1.45; }
+.add-pack-tile > b { margin-top: 8px; color: #697069; font-size: 20px; }
+.add-pack-tile:hover { border-color: var(--acid); background: #172013; }
+.add-pack-tile:hover .add-pack-plus { color: var(--ink); background: var(--acid); transform: rotate(5deg) scale(1.06); }
+.add-pack-tile:hover > b { color: var(--acid); }
 .empty-library { min-height: 360px; border: 1px dashed #353a36; display: grid; place-items: center; align-content: center; gap: 10px; color: var(--muted); }
 .empty-library > span { color: var(--acid); font-size: 42px; }
 .empty-library h3 { margin: 0; font: 800 28px var(--font-display); text-transform: uppercase; color: var(--paper); }
@@ -669,6 +680,7 @@ footer { height: 90px; border-top: 1px solid var(--line); padding: 0 48px; displ
   .mode-grid, .pack-grid, .result-history-grid { grid-template-columns: 1fr; gap: 13px; }
   .mode-tile { min-height: 205px; }
   .pack-art { height: auto; aspect-ratio: 16 / 10; }
+  .add-pack-tile { min-height: 280px; }
   .pack-play-overlay { transform: none; }
   .pack-actions { gap: 18px; flex-wrap: wrap; }
   .pack-actions button { min-height: 34px; font-size: 9px; }
@@ -714,5 +726,6 @@ footer { height: 90px; border-top: 1px solid var(--line); padding: 0 48px; displ
 @media (hover: none) and (pointer: coarse) {
   .source-tile.live:hover, .mode-tile.live:hover, .pack-tile:hover, .result-history-card:hover, .track-choice:hover { transform: none; box-shadow: none; }
   .source-tile.live:active, .mode-tile.live:active, .pack-tile:active, .result-history-card:active { border-color: var(--acid); background: #182013; transform: scale(.985); }
+  .add-pack-tile:hover .add-pack-plus { transform: none; }
   .button:active, .choose-track:active { transform: scale(.985); }
 }

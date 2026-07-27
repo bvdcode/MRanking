@@ -188,6 +188,8 @@ const TRANSLATIONS: Record<Exclude<Language, "en">, Record<string, string>> = {
       "Классическая фиксированная турнирная сетка.",
     "Your recent packs": "Твои недавние паки",
     "Import a playlist": "Импортировать плейлист",
+    "Add a pack": "Добавить пак",
+    "Upload or import a new pack.": "Загрузи или импортируй новый пак.",
     "No packs yet": "Паков пока нет",
     "Your imported playlists will appear here.":
       "Загруженные плейлисты появятся здесь.",
@@ -460,6 +462,8 @@ const TRANSLATIONS: Record<Exclude<Language, "en">, Record<string, string>> = {
     "Classic fixed tournament bracket.": "Класична фіксована турнірна сітка.",
     "Your recent packs": "Твої недавні паки",
     "Import a playlist": "Імпортувати плейлист",
+    "Add a pack": "Додати пак",
+    "Upload or import a new pack.": "Завантаж або імпортуй новий пак.",
     "No packs yet": "Паків поки немає",
     "Your imported playlists will appear here.":
       "Імпортовані плейлисти з'являться тут.",
@@ -2474,6 +2478,12 @@ function KingLibraryView({
         </div>
       ) : (
         <div className="pack-grid mode-pack-grid">
+          <button className="pack-tile add-pack-tile" onClick={onPacks}>
+            <span className="add-pack-plus" aria-hidden="true">+</span>
+            <strong>{t("Add a pack")}</strong>
+            <small>{t("Upload or import a new pack.")}</small>
+            <b aria-hidden="true">↗</b>
+          </button>
           {packs.map((pack) => (
             <article className="pack-tile" key={pack.id}>
               <button
