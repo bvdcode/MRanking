@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     if (!row || !(await verifyPassword(password, row.password_salt, row.password_hash))) {
       return Response.json({ error: "Invalid nickname or password" }, { status: 401 });
     }
-    const session = await createSession(row.id);
+    const session = await createSession(row.id, request);
     return Response.json({ user: serializeUser(row) }, { headers: { "Set-Cookie": session.cookie } });
   } catch (error) {
     return jsonError(error);

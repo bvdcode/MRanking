@@ -168,6 +168,7 @@ test("server enforces authenticated ownership and durable storage", async () => 
   assert.match(server, /PBKDF2/);
   assert.match(server, /210_000/);
   assert.match(server, /HttpOnly; SameSite=Lax/);
+  assert.match(server, /protocol === "https:" \? "; Secure"/);
   assert.match(server, /role, avatar_emoji/);
   assert.match(server, /MRANKING_ADMIN_NICKNAME/);
   assert.match(server, /MRANKING_ADMIN_PASSWORD/);

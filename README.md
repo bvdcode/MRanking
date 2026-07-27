@@ -25,3 +25,14 @@ For a fresh database, configure `MRANKING_ADMIN_NICKNAME` and `MRANKING_ADMIN_PA
 At least 16 playable videos are required. Duplicate, private, deleted and unavailable entries are skipped and reported. Imported packs, in-progress games and final results persist in local SQLite storage.
 
 The admin screen creates users, resets passwords, soft-deletes accounts without deleting their packs, and lists all private packs. Tier List, Blind Ranking and the other rating formats are visual placeholders for later development.
+
+## Sites deployment
+
+The project already uses the Sites-compatible Vinext layout. The build emits the worker bundle, D1 migrations and [`.openai/hosting.json`](.openai/hosting.json) with the `DB` and `AVATARS` bindings.
+
+Before opening a fresh deployment, configure these runtime values in Sites:
+
+- `MRANKING_ADMIN_NICKNAME` — the first administrator's nickname.
+- `MRANKING_ADMIN_PASSWORD` — the first administrator's password (at least 6 characters; store it as a secret).
+
+Run `pnpm test` before publishing. The generated `/dist` directory and local Wrangler state are intentionally ignored by Git.

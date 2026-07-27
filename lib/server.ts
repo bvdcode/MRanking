@@ -179,7 +179,7 @@ export async function verifyPassword(password: string, salt: string, expectedHas
   return difference === 0;
 }
 
-export async function createSession(userId: string) {
+export async function createSession(userId: string, request: Request) {
   const token = bytesToBase64Url(crypto.getRandomValues(new Uint8Array(32)));
   const tokenHash = await sha256(token);
   const createdAt = new Date();
@@ -189,14 +189,14 @@ export async function createSession(userId: string) {
   ).bind(crypto.randomUUID(), userId, tokenHash, expiresAt.toISOString(), createdAt.toISOString()).run();
   return {
     token,
-    cookie: `${SESSION_COOKIE}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${SESSION_SECONDS}`,
+    cookie: sessionCookie(token, SESSION_SECONDS, request),
   };
 }
 
 export async function destroySession(request: Request) {
   const token = getCookie(request, SESSION_COOKIE);
   if (token) await getD1().prepare("DELETE FROM sessions WHERE token_hash = ?").bind(await sha256(token)).run();
-  return `${SESSION_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`;
+  return sessionCookie("", 0, request);
 }
 
 export async function getAuthenticatedUser(request: Request): Promise<User | null> {
@@ -256,6 +256,11 @@ function getCookie(request: Request, name: string) {
     if (key === name) return value.join("=");
   }
   return null;
+}
+
+function sessionCookie(token: string, maxAge: number, request: Request) {
+  const secure = new URL(request.url).protocol === "https:" ? "; Secure" : "";
+  return `${SESSION_COOKIE}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${secure}`;
 }
 
 async function sha256(value: string) {
