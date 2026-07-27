@@ -204,6 +204,9 @@ test("YouTube importer handles current and classic playlist renderers", async ()
     "utf8",
   );
   assert.match(importer, /youtubei\/v1\/browse/);
+  assert.match(importer, /youtubei\.googleapis\.com/);
+  assert.match(importer, /"accept-language": "en-US,en;q=0\.9"/);
+  assert.match(importer, /fallback\.hostname/);
   assert.match(importer, /browseId: `VL\$\{playlistId\}`/);
   assert.match(importer, /lockupViewModel/);
   assert.match(importer, /playlistVideoRenderer/);

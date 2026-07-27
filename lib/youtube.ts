@@ -28,11 +28,11 @@ const YOUTUBE_HOSTS = new Set([
   "music.youtube.com",
 ]);
 const INNERTUBE_URL =
-  "https://www.youtube.com/youtubei/v1/browse?prettyPrint=false";
+  "https://youtubei.googleapis.com/youtubei/v1/browse?prettyPrint=false";
 const MUSIC_INNERTUBE_URL =
-  "https://music.youtube.com/youtubei/v1/browse?prettyPrint=false";
+  "https://youtubei.googleapis.com/youtubei/v1/browse?prettyPrint=false";
 const RESOLVE_URL =
-  "https://www.youtube.com/youtubei/v1/navigation/resolve_url?prettyPrint=false";
+  "https://youtubei.googleapis.com/youtubei/v1/navigation/resolve_url?prettyPrint=false";
 const CLIENT_VERSION = "2.20260720.07.00";
 const MUSIC_CLIENT_VERSION = "1.20260720.01.00";
 
@@ -379,17 +379,38 @@ async function innertubeCall(
   clientName = "1",
   clientVersion = CLIENT_VERSION,
 ) {
-  const response = await fetch(endpoint, {
+  const origin = clientName === "67"
+    ? "https://music.youtube.com"
+    : "https://www.youtube.com";
+  const headers = {
+    accept: "*/*",
+    "accept-language": "en-US,en;q=0.9",
+    "content-type": "application/json",
+    origin,
+    referer: `${origin}/`,
+    "user-agent":
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/150.0.0.0 Safari/537.36",
+    "x-youtube-client-name": clientName,
+    "x-youtube-client-version": clientVersion,
+  };
+  const request = {
     method: "POST",
     signal,
-    headers: {
-      "content-type": "application/json",
-      "x-youtube-client-name": clientName,
-      "x-youtube-client-version": clientVersion,
-    },
+    headers,
     body: JSON.stringify(body),
-  });
+  } satisfies RequestInit;
+  let response = await fetch(endpoint, request);
+
+  if (!response.ok && new URL(endpoint).hostname === "youtubei.googleapis.com") {
+    const fallback = new URL(endpoint);
+    fallback.hostname = clientName === "67" ? "music.youtube.com" : "www.youtube.com";
+    response = await fetch(fallback, request);
+  }
   if (!response.ok) {
+    console.warn("YouTube upstream request failed", {
+      path: new URL(endpoint).pathname,
+      status: response.status,
+    });
     if (response.status === 404)
       throw new Error("The YouTube page was not found");
     throw new Error("YouTube did not return this page");
