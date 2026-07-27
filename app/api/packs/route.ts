@@ -41,14 +41,11 @@ export async function GET(request: Request) {
   try {
     const auth = await requireUser(request);
     if (auth.response || !auth.user) return auth.response;
-    const all = auth.user.role === "admin" && new URL(request.url).searchParams.get("scope") === "all";
     const query = `SELECT p.*, u.nickname AS owner_nickname
       FROM packs p LEFT JOIN users u ON u.id = p.owner_id
-      WHERE p.deleted_at IS NULL ${all ? "" : "AND p.owner_id = ?"}
+      WHERE p.deleted_at IS NULL AND p.owner_id = ?
       ORDER BY p.updated_at DESC`;
-    const rows = all
-      ? (await getD1().prepare(query).all<PackRow>()).results
-      : (await getD1().prepare(query).bind(auth.user.id).all<PackRow>()).results;
+    const rows = (await getD1().prepare(query).bind(auth.user.id).all<PackRow>()).results;
     return Response.json({ packs: await hydratePacks(rows) });
   } catch (error) {
     return jsonError(error);
@@ -70,7 +67,7 @@ export async function POST(request: Request) {
       const existing = await db.prepare("SELECT owner_id, created_at FROM packs WHERE id = ? AND deleted_at IS NULL")
         .bind(packId).first<{ owner_id: string; created_at: string }>();
       if (!existing) return Response.json({ error: "Pack not found" }, { status: 404 });
-      if (existing.owner_id !== auth.user.id && auth.user.role !== "admin") return Response.json({ error: "Not allowed" }, { status: 403 });
+      if (existing.owner_id !== auth.user.id) return Response.json({ error: "Not allowed" }, { status: 403 });
       ownerId = existing.owner_id;
       await db.prepare("DELETE FROM pack_items WHERE pack_id = ?").bind(packId).run();
       await db.prepare(
@@ -102,7 +99,7 @@ export async function DELETE(request: Request) {
     const id = new URL(request.url).searchParams.get("id") ?? "";
     const pack = await getD1().prepare("SELECT owner_id FROM packs WHERE id = ?").bind(id).first<{ owner_id: string }>();
     if (!pack) return Response.json({ error: "Pack not found" }, { status: 404 });
-    if (pack.owner_id !== auth.user.id && auth.user.role !== "admin") return Response.json({ error: "Not allowed" }, { status: 403 });
+    if (pack.owner_id !== auth.user.id) return Response.json({ error: "Not allowed" }, { status: 403 });
     const db = getD1();
     const now = new Date().toISOString();
     await db.batch([

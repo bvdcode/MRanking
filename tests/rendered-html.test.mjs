@@ -25,8 +25,11 @@ test("client includes the private playlist-to-tournament flow", async () => {
 
   assert.match(
     source,
-    /type View = "home" \| "packs" \| "modes" \| "hill" \| "admin"/,
+    /type View = "home" \| "packs" \| "modes" \| "hill"/,
   );
+  assert.match(source, /Create account/);
+  assert.match(source, /onRegister/);
+  assert.doesNotMatch(source, /AdminView|onAdmin|\/api\/admin/);
   assert.match(source, /onNavigate\("packs"\)/);
   assert.match(source, /onNavigate\("modes"\)/);
   assert.match(source, /King of the Hill/);
@@ -83,8 +86,6 @@ test("client includes the private playlist-to-tournament flow", async () => {
   assert.match(source, /Tier List/);
   assert.match(source, /Blind Ranking/);
   assert.match(source, /Single Elimination/);
-  assert.match(source, /\/api\/packs\?scope=all/);
-  assert.match(source, /All private packs/);
   const packLibrary = source.slice(
     source.indexOf("function PackLibraryView"),
     source.indexOf("function KingLibraryView"),
@@ -145,21 +146,22 @@ test("language control translates the whole interface", async () => {
   assert.match(source, /document\.documentElement\.lang = next/);
 });
 
-test("server enforces authenticated ownership and durable storage", async () => {
-  const [server, packs, results, admin, schema, resultMigration, hosting] = await Promise.all([
+test("server supports self-registration, ownership and durable storage", async () => {
+  const [server, auth, packs, results, schema, resultMigration, roleMigration, hosting] = await Promise.all([
     readFile(new URL("../lib/server.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/auth/route.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/api/packs/route.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/api/results/route.ts", import.meta.url), "utf8"),
-    readFile(
-      new URL("../app/api/admin/users/route.ts", import.meta.url),
-      "utf8",
-    ),
     readFile(
       new URL("../drizzle/0000_cold_eternals.sql", import.meta.url),
       "utf8",
     ),
     readFile(
       new URL("../drizzle/0001_lying_korvac.sql", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL("../drizzle/0002_absurd_garia.sql", import.meta.url),
       "utf8",
     ),
     readFile(new URL("../.openai/hosting.json", import.meta.url), "utf8"),
@@ -169,10 +171,12 @@ test("server enforces authenticated ownership and durable storage", async () => 
   assert.match(server, /210_000/);
   assert.match(server, /HttpOnly; SameSite=Lax/);
   assert.match(server, /protocol === "https:" \? "; Secure"/);
-  assert.match(server, /role, avatar_emoji/);
-  assert.match(server, /MRANKING_ADMIN_NICKNAME/);
-  assert.match(server, /MRANKING_ADMIN_PASSWORD/);
-  assert.doesNotMatch(server, /ADMIN_HASH|ADMIN_SALT|user-admin-/);
+  assert.doesNotMatch(server, /requireAdmin|MRANKING_ADMIN|role TEXT/);
+  assert.match(auth, /export async function PUT/);
+  assert.match(auth, /Nickname is already taken/);
+  assert.match(auth, /hashPassword\(password\)/);
+  assert.match(auth, /createSession\(row\.id, request\)/);
+  assert.doesNotMatch(auth, /'admin'|"admin"/);
   assert.match(packs, /body\.items\.length < 16/);
   assert.match(packs, /existing\.owner_id !== auth\.user\.id/);
   assert.match(packs, /Duplicate items are not allowed/);
@@ -182,12 +186,11 @@ test("server enforces authenticated ownership and durable storage", async () => 
   assert.match(results, /loadPackSnapshot/);
   assert.match(results, /export async function DELETE/);
   assert.match(results, /DELETE FROM results WHERE id = \? AND user_id = \?/);
-  assert.match(admin, /UPDATE users SET deleted_at/);
-  assert.doesNotMatch(admin, /DELETE FROM packs WHERE owner_id/);
   assert.match(schema, /CREATE TABLE `users`/);
   assert.match(schema, /CREATE TABLE `packs`/);
   assert.match(schema, /CREATE TABLE `results`/);
   assert.match(resultMigration, /ADD `pack_json` text/);
+  assert.match(roleMigration, /DROP COLUMN `role`/);
   assert.deepEqual(JSON.parse(hosting), { d1: "DB", r2: "AVATARS" });
 });
 

@@ -15,6 +15,13 @@
       "when": 1785173993666,
       "tag": "0001_lying_korvac",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1785183686770,
+      "tag": "0002_absurd_garia",
+      "breakpoints": true
     }
   ]
 }

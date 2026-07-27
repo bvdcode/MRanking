@@ -1,3 +1,0 @@
-# Configure these values in the Sites runtime. Never commit real credentials.
-MRANKING_ADMIN_NICKNAME=
-MRANKING_ADMIN_PASSWORD=

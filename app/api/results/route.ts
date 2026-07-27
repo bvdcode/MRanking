@@ -89,7 +89,7 @@ export async function POST(request: Request) {
     const pack = await loadPackSnapshot(session.packId, true);
     if (
       !pack ||
-      (pack.ownerId !== auth.user.id && auth.user.role !== "admin")
+      pack.ownerId !== auth.user.id
     )
       return Response.json({ error: "Pack not found" }, { status: 404 });
     const completedAt = new Date().toISOString();

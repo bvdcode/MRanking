@@ -4,14 +4,11 @@ import type { User } from "./types";
 type RuntimeEnv = {
   DB: D1Database;
   AVATARS: R2Bucket;
-  MRANKING_ADMIN_NICKNAME?: string;
-  MRANKING_ADMIN_PASSWORD?: string;
 };
 
 type UserRow = {
   id: string;
   nickname: string;
-  role: "admin" | "user";
   avatar_emoji: string;
   avatar_key: string | null;
   created_at: string;
@@ -47,7 +44,6 @@ async function initializeSchema() {
       nickname_key TEXT NOT NULL UNIQUE,
       password_hash TEXT NOT NULL,
       password_salt TEXT NOT NULL,
-      role TEXT NOT NULL DEFAULT 'user',
       avatar_emoji TEXT NOT NULL DEFAULT '🎧',
       avatar_key TEXT,
       created_at TEXT NOT NULL,
@@ -119,43 +115,6 @@ async function initializeSchema() {
   }>()).results;
   if (!resultColumns.some((column) => column.name === "pack_json"))
     await db.prepare("ALTER TABLE results ADD COLUMN pack_json TEXT").run();
-  await initializeAdministrator();
-}
-
-async function initializeAdministrator() {
-  const { MRANKING_ADMIN_NICKNAME, MRANKING_ADMIN_PASSWORD } = runtimeEnv();
-  const nickname = MRANKING_ADMIN_NICKNAME?.trim();
-  const password = MRANKING_ADMIN_PASSWORD?.trim();
-
-  if (!nickname && !password) return;
-  if (!nickname || !password) {
-    throw new Error("Both MRANKING_ADMIN_NICKNAME and MRANKING_ADMIN_PASSWORD must be configured");
-  }
-  if (password.length < 6) {
-    throw new Error("MRANKING_ADMIN_PASSWORD needs at least 6 characters");
-  }
-
-  const db = getD1();
-  const existingAdmin = await db.prepare(
-    "SELECT id FROM users WHERE role = 'admin' AND deleted_at IS NULL LIMIT 1",
-  ).first<{ id: string }>();
-  if (existingAdmin) return;
-
-  const nicknameKey = normalizeNickname(nickname);
-  const existingUser = await db.prepare(
-    "SELECT id FROM users WHERE nickname_key = ? AND deleted_at IS NULL LIMIT 1",
-  ).bind(nicknameKey).first<{ id: string }>();
-  if (existingUser) {
-    throw new Error("MRANKING_ADMIN_NICKNAME is already used by another account");
-  }
-
-  const passwordData = await hashPassword(password);
-  const now = new Date().toISOString();
-  await db.prepare(
-    `INSERT INTO users
-      (id, nickname, nickname_key, password_hash, password_salt, role, avatar_emoji, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, 'admin', '♛', ?, ?)`,
-  ).bind(uid("user"), nickname, nicknameKey, passwordData.hash, passwordData.salt, now, now).run();
 }
 
 export function normalizeNickname(value: string) {
@@ -204,7 +163,7 @@ export async function getAuthenticatedUser(request: Request): Promise<User | nul
   const token = getCookie(request, SESSION_COOKIE);
   if (!token) return null;
   const row = await getD1().prepare(
-    `SELECT u.id, u.nickname, u.role, u.avatar_emoji, u.avatar_key, u.created_at
+    `SELECT u.id, u.nickname, u.avatar_emoji, u.avatar_key, u.created_at
      FROM sessions s JOIN users u ON u.id = s.user_id
      WHERE s.token_hash = ? AND s.expires_at > ? AND u.deleted_at IS NULL`,
   ).bind(await sha256(token), new Date().toISOString()).first<UserRow>();
@@ -217,19 +176,10 @@ export async function requireUser(request: Request) {
   return { user, response: null };
 }
 
-export async function requireAdmin(request: Request) {
-  const auth = await requireUser(request);
-  if (!auth.user || auth.user.role !== "admin") {
-    return { user: null, response: auth.response ?? Response.json({ error: "Administrator access required" }, { status: 403 }) };
-  }
-  return { user: auth.user, response: null };
-}
-
 export function serializeUser(row: UserRow): User {
   return {
     id: row.id,
     nickname: row.nickname,
-    role: row.role,
     avatarEmoji: row.avatar_emoji,
     avatarUrl: row.avatar_key ? `/api/avatar?user=${encodeURIComponent(row.id)}` : null,
     createdAt: row.created_at,

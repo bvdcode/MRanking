@@ -6,7 +6,6 @@ export const users = sqliteTable("users", {
   nicknameKey: text("nickname_key").notNull(),
   passwordHash: text("password_hash").notNull(),
   passwordSalt: text("password_salt").notNull(),
-  role: text("role", { enum: ["admin", "user"] }).notNull().default("user"),
   avatarEmoji: text("avatar_emoji").notNull().default("🎧"),
   avatarKey: text("avatar_key"),
   createdAt: text("created_at").notNull(),

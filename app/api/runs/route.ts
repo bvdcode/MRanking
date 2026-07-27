@@ -25,7 +25,7 @@ export async function PUT(request: Request) {
     if (!run?.session?.id || !run.session.packId) return Response.json({ error: "Run state required" }, { status: 400 });
     const pack = await getD1().prepare("SELECT owner_id FROM packs WHERE id = ? AND deleted_at IS NULL")
       .bind(run.session.packId).first<{ owner_id: string }>();
-    if (!pack || (pack.owner_id !== auth.user.id && auth.user.role !== "admin")) return Response.json({ error: "Pack not found" }, { status: 404 });
+    if (!pack || pack.owner_id !== auth.user.id) return Response.json({ error: "Pack not found" }, { status: 404 });
     const now = new Date().toISOString();
     await getD1().prepare(
       `INSERT INTO runs (id, user_id, pack_id, state_json, updated_at) VALUES (?, ?, ?, ?, ?)

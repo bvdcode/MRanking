@@ -9,7 +9,6 @@ export type SourceType =
 export type User = {
   id: string;
   nickname: string;
-  role: "admin" | "user";
   avatarEmoji: string;
   avatarUrl: string | null;
   createdAt: string;
@@ -131,8 +130,3 @@ export type UndoSnapshot = {
 };
 
 export type ActiveRun = { session: Session; undoStack: UndoSnapshot[] };
-
-export type AdminUser = User & {
-  deletedAt: string | null;
-  packCount: number;
-};

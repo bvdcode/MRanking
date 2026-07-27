@@ -45,8 +45,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .language-menu button.active { color: var(--acid); }
 .language-menu button.active:hover { color: var(--ink); }
 .profile-chip { min-width: 135px; height: 42px; border: 1px solid var(--line); background: #101210; padding: 4px 13px 4px 4px; display: flex; align-items: center; gap: 8px; font-size: 11px; cursor: pointer; }
-.avatar, .admin-avatar { width: 32px; height: 32px; display: grid; place-items: center; background: #282c28; overflow: hidden; font-size: 17px; }
-.avatar img, .admin-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.avatar { width: 32px; height: 32px; display: grid; place-items: center; background: #282c28; overflow: hidden; font-size: 17px; }
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
 .profile-menu { position: absolute; right: 0; top: 49px; width: 230px; padding: 10px; background: #181b19; border: 1px solid var(--line); box-shadow: 0 18px 45px #000b; animation: menu-in .16s ease; }
 .profile-menu-head { display: flex; align-items: center; gap: 10px; padding: 7px 7px 14px; border-bottom: 1px solid var(--line); margin-bottom: 6px; }
 .profile-menu-head > div { display: flex; flex-direction: column; gap: 2px; }
@@ -186,7 +186,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .editor-main { border: 1px solid var(--line); background: #0e100f; padding: 24px; }
 .large-field { display: flex; flex-direction: column; gap: 10px; margin-bottom: 23px; }
 .large-field > span, .field > span { color: #929993; text-transform: uppercase; letter-spacing: .12em; font-size: 8px; font-weight: 800; }
-.large-field input, .field input, .reset-password input { border: 1px solid #343935; background: #161916; color: var(--paper); padding: 13px 14px; }
+.large-field input, .field input { border: 1px solid #343935; background: #161916; color: var(--paper); padding: 13px 14px; }
 .large-field input { height: 54px; font: 700 20px var(--font-display); }
 .editor-name-field { align-self: center; margin: 0; }
 .editor-name-field > span { font-size: 10px; }
@@ -457,44 +457,10 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
 .field input { width: 100%; height: 47px; }
 .login-modal .button { width: 100%; margin-top: 10px; }
+.auth-mode-switch { margin-top: 18px; border: 0; background: transparent; color: #9ca39d; font-size: 9px; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
+.auth-mode-switch:hover { color: var(--acid); }
 .toast { position: fixed; z-index: 110; bottom: 30px; left: 50%; transform: translateX(-50%); min-height: 45px; background: var(--paper); color: var(--ink); box-shadow: 7px 7px 0 var(--acid-dark); padding: 0 18px; display: flex; align-items: center; gap: 10px; font-size: 10px; font-weight: 800; animation: toast-in .25s ease; }
 .toast span { color: var(--acid-dark); font-size: 16px; }
-
-.admin-layout { display: grid; grid-template-columns: 340px 1fr; gap: 25px; align-items: start; }
-.create-user-panel { position: sticky; top: 108px; border: 1px solid var(--line); background: #111411; padding: 22px; }
-.create-user-panel > .aside-label { display: block; margin-bottom: 20px; }
-.create-user-panel .button { width: 100%; margin-top: 15px; }
-.user-table { border: 1px solid var(--line); background: #0e100f; padding: 12px; display: grid; gap: 7px; }
-.user-table article { min-height: 76px; border: 1px solid #2b302c; background: #151815; padding: 10px; display: grid; grid-template-columns: 42px minmax(150px,1fr) 70px 260px 95px; gap: 10px; align-items: center; }
-.user-table article.deleted { opacity: .45; grid-template-columns: 42px 1fr 70px; }
-.admin-avatar { width: 40px; height: 40px; }
-.user-identity { display: flex; flex-direction: column; gap: 4px; }
-.user-identity b { font-size: 11px; }
-.user-identity small { color: var(--muted); font-size: 8px; }
-.user-status { color: var(--acid); text-transform: uppercase; font-size: 7px; letter-spacing: .09em; }
-.user-status.off { color: var(--coral); }
-.reset-password { display: grid; grid-template-columns: 1fr 105px; }
-.reset-password input { min-width: 0; height: 38px; padding: 0 10px; }
-.reset-password button, .delete-user { border: 1px solid #3a403b; background: transparent; color: #9ca29d; text-transform: uppercase; font-size: 7px; cursor: pointer; }
-.reset-password button:hover { color: var(--acid); border-color: var(--acid); }
-.delete-user { height: 38px; }
-.delete-user:hover { color: var(--coral); border-color: var(--coral); }
-.admin-pack-audit { margin-top: 42px; border-top: 1px solid var(--line); padding-top: 28px; }
-.admin-pack-audit .section-line { align-items: end; }
-.admin-pack-audit .section-line div { display: grid; gap: 7px; }
-.admin-pack-audit .section-line p { margin: 0; color: var(--muted); font-size: 9px; }
-.admin-pack-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-.admin-pack-grid article { min-height: 74px; border: 1px solid #2b302c; background: #111411; padding: 9px; display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 11px; align-items: center; position: relative; transition: border-color .18s ease, transform .18s ease; }
-.admin-pack-grid article:hover { border-color: #515a52; transform: translateY(-2px); }
-.admin-pack-cover { width: 72px; height: 54px; background: #1c211d; overflow: hidden; display: grid; place-items: center; }
-.admin-pack-cover img { width: 100%; height: 100%; object-fit: cover; }
-.admin-pack-cover .emoji-pack-cover { font-size: 26px; }
-.admin-pack-grid article > div:nth-child(2) { min-width: 0; display: grid; gap: 5px; }
-.admin-pack-grid b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; }
-.admin-pack-grid small { color: var(--muted); font-size: 7px; }
-.admin-pack-grid article > span { position: absolute; right: 9px; bottom: 7px; max-width: calc(100% - 100px); color: #858d86; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-transform: uppercase; font-size: 6px; letter-spacing: .08em; }
-.admin-pack-grid article > span.owner-deleted { color: var(--coral); }
-.admin-pack-empty { min-height: 90px; border: 1px dashed #323833; display: grid; place-items: center; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; font-size: 8px; }
 
 footer { height: 90px; border-top: 1px solid var(--line); padding: 0 48px; display: flex; align-items: center; justify-content: space-between; color: #626963; text-transform: uppercase; letter-spacing: .13em; font-size: 7px; }
 .boot-screen { min-height: 100vh; display: grid; place-items: center; align-content: center; gap: 24px; color: #777e78; text-transform: uppercase; letter-spacing: .16em; font-size: 8px; }

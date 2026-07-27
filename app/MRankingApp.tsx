@@ -12,7 +12,6 @@ import {
 } from "react";
 import type {
   ActiveRun,
-  AdminUser,
   Pack,
   PackItem,
   PlaylistImportIssue,
@@ -26,7 +25,7 @@ import type {
   YouTubeProfilePreview,
 } from "../lib/types";
 
-type View = "home" | "packs" | "modes" | "hill" | "admin";
+type View = "home" | "packs" | "modes" | "hill";
 type Language = "en" | "ru" | "uk";
 type Translate = (
   key: string,
@@ -59,27 +58,19 @@ const COVER_EMOJIS = [
   "🏆",
   "♛",
 ];
-const PROFILE_EMOJIS = [
-  "🎧",
-  "🎸",
-  "👾",
-  "🧠",
-  "🐸",
-  "🦝",
-  "🪩",
-  "⚡",
-  "🛹",
-  "♛",
-];
-
 const TRANSLATIONS: Record<Exclude<Language, "en">, Record<string, string>> = {
   ru: {
     "Upload pack": "Загрузить пак",
     Packs: "Паки",
     Modes: "Режимы",
     "King of the Hill": "Король горы",
-    Admin: "Админ",
     "Sign in": "Войти",
+    "Create account": "Создать аккаунт",
+    "Create your profile": "Создай профиль",
+    "Already have an account? Sign in": "Уже есть аккаунт? Войти",
+    "New here? Create account": "Впервые здесь? Создать аккаунт",
+    "YOUR PROFILE": "ТВОЙ ПРОФИЛЬ",
+    "Account created": "Аккаунт создан",
     "Sign out": "Выйти",
     "Choose language": "Выбрать язык",
     "Main navigation": "Основная навигация",
@@ -239,30 +230,12 @@ const TRANSLATIONS: Record<Exclude<Language, "en">, Record<string, string>> = {
     Profile: "Профиль",
     "Upload avatar": "Загрузить аватар",
     "Avatar must be smaller than 2 MB": "Аватар должен быть меньше 2 МБ",
-    "User control": "Управление пользователями",
-    "Create accounts, reset passwords and preserve their packs.":
-      "Создавай аккаунты, сбрасывай пароли и сохраняй их паки.",
-    "All private packs": "Все приватные паки",
-    "Every imported pack and its owner.":
-      "Все импортированные паки и их владельцы.",
-    "No packs have been imported yet.": "Пока не импортировано ни одного пака.",
-    "Create user": "Создать пользователя",
-    "New password": "Новый пароль",
-    "Reset password": "Сбросить пароль",
-    "Delete user": "Удалить пользователя",
-    Active: "Активен",
-    Deleted: "Удалён",
-    packs: "паков",
-    "Local prototype": "Локальный прототип",
+    "Tournament platform": "Турнирная платформа",
     "Pack saved": "Пак сохранён",
     "Pack deleted": "Пак удалён",
     "Playlist imported": "Плейлист импортирован",
     "Result saved": "Результат сохранён",
     "Tournament deleted": "Турнир удалён",
-    "User created": "Пользователь создан",
-    "Password reset": "Пароль сброшен",
-    "User deleted; their packs were preserved":
-      "Пользователь удалён; его паки сохранены",
     "Something went wrong": "Что-то пошло не так",
     "LOADING ARENA": "ЗАГРУЗКА АРЕНЫ",
     ITEMS: "ПОЗИЦИЙ",
@@ -290,9 +263,6 @@ const TRANSLATIONS: Record<Exclude<Language, "en">, Record<string, string>> = {
     WIN: "ПОБЕДА",
     "Deleted track": "Удалённый трек",
     "{count} LEFT": "ОСТАЛОСЬ ПАР: {count}",
-    "PRIVATE ARENA": "ПРИВАТНАЯ АРЕНА",
-    "ADMIN ONLY": "ТОЛЬКО АДМИН",
-    User: "Пользователь",
     "Animated tournament bracket": "Анимированная турнирная сетка",
     "LIVE BRACKET / 64 ENTRIES": "ЖИВАЯ СЕТКА / 64 УЧАСТНИКА",
     "Choose how you want to rate your private packs.":
@@ -358,17 +328,23 @@ const TRANSLATIONS: Record<Exclude<Language, "en">, Record<string, string>> = {
     "Nickname is too short": "Никнейм слишком короткий",
     "Password needs at least 6 characters":
       "Пароль должен содержать минимум 6 символов",
+    "Nickname is too long": "Никнейм слишком длинный",
+    "Password is too long": "Пароль слишком длинный",
     "Nickname is already taken": "Этот никнейм уже занят",
     "Delete “{name}”?": "Удалить «{name}»?",
-    "Delete {name}?": "Удалить {name}?",
   },
   uk: {
     "Upload pack": "Завантажити пак",
     Packs: "Паки",
     Modes: "Режими",
     "King of the Hill": "Король гори",
-    Admin: "Адмін",
     "Sign in": "Увійти",
+    "Create account": "Створити акаунт",
+    "Create your profile": "Створи профіль",
+    "Already have an account? Sign in": "Вже є акаунт? Увійти",
+    "New here? Create account": "Вперше тут? Створити акаунт",
+    "YOUR PROFILE": "ТВІЙ ПРОФІЛЬ",
+    "Account created": "Акаунт створено",
     "Sign out": "Вийти",
     "Choose language": "Обрати мову",
     "Main navigation": "Основна навігація",
@@ -526,30 +502,12 @@ const TRANSLATIONS: Record<Exclude<Language, "en">, Record<string, string>> = {
     Profile: "Профіль",
     "Upload avatar": "Завантажити аватар",
     "Avatar must be smaller than 2 MB": "Аватар має бути меншим за 2 МБ",
-    "User control": "Керування користувачами",
-    "Create accounts, reset passwords and preserve their packs.":
-      "Створюй акаунти, скидай паролі та зберігай їхні паки.",
-    "All private packs": "Усі приватні паки",
-    "Every imported pack and its owner.":
-      "Усі імпортовані паки та їхні власники.",
-    "No packs have been imported yet.": "Ще не імпортовано жодного пака.",
-    "Create user": "Створити користувача",
-    "New password": "Новий пароль",
-    "Reset password": "Скинути пароль",
-    "Delete user": "Видалити користувача",
-    Active: "Активний",
-    Deleted: "Видалений",
-    packs: "паків",
-    "Local prototype": "Локальний прототип",
+    "Tournament platform": "Турнірна платформа",
     "Pack saved": "Пак збережено",
     "Pack deleted": "Пак видалено",
     "Playlist imported": "Плейлист імпортовано",
     "Result saved": "Результат збережено",
     "Tournament deleted": "Турнір видалено",
-    "User created": "Користувача створено",
-    "Password reset": "Пароль скинуто",
-    "User deleted; their packs were preserved":
-      "Користувача видалено; його паки збережено",
     "Something went wrong": "Щось пішло не так",
     "LOADING ARENA": "ЗАВАНТАЖЕННЯ АРЕНИ",
     ITEMS: "ПОЗИЦІЙ",
@@ -577,9 +535,6 @@ const TRANSLATIONS: Record<Exclude<Language, "en">, Record<string, string>> = {
     WIN: "ПЕРЕМОГА",
     "Deleted track": "Видалений трек",
     "{count} LEFT": "ЗАЛИШИЛОСЯ ПАР: {count}",
-    "PRIVATE ARENA": "ПРИВАТНА АРЕНА",
-    "ADMIN ONLY": "ЛИШЕ АДМІН",
-    User: "Користувач",
     "Animated tournament bracket": "Анімована турнірна сітка",
     "LIVE BRACKET / 64 ENTRIES": "ЖИВА СІТКА / 64 УЧАСНИКИ",
     "Choose how you want to rate your private packs.":
@@ -646,9 +601,10 @@ const TRANSLATIONS: Record<Exclude<Language, "en">, Record<string, string>> = {
     "Nickname is too short": "Нікнейм надто короткий",
     "Password needs at least 6 characters":
       "Пароль має містити щонайменше 6 символів",
+    "Nickname is too long": "Нікнейм надто довгий",
+    "Password is too long": "Пароль надто довгий",
     "Nickname is already taken": "Цей нікнейм уже зайнятий",
     "Delete “{name}”?": "Видалити «{name}»?",
-    "Delete {name}?": "Видалити {name}?",
   },
 };
 
@@ -940,6 +896,17 @@ export function MRankingApp() {
     await loadPrivateData();
   }
 
+  async function register(nickname: string, password: string) {
+    const data = await api<{ user: User }>("/api/auth", {
+      method: "PUT",
+      body: JSON.stringify({ nickname, password }),
+    });
+    setUser(data.user);
+    setLoginOpen(false);
+    await loadPrivateData();
+    setToast(t("Account created"));
+  }
+
   async function logout() {
     await api("/api/auth", { method: "DELETE" });
     setUser(null);
@@ -1184,10 +1151,6 @@ export function MRankingApp() {
           onProfile={() =>
             user ? setProfileOpen((open) => !open) : setLoginOpen(true)
           }
-          onAdmin={() => {
-            setProfileOpen(false);
-            protectedNavigate("admin");
-          }}
           onLogout={logout}
           onAvatar={(next) =>
             setUser((current) =>
@@ -1297,19 +1260,19 @@ export function MRankingApp() {
               onBack={() => setActiveRun(null)}
             />
           )}
-        {view === "admin" && user?.role === "admin" && (
-          <AdminView onBack={goHome} />
-        )}
-
         <footer>
-          <span>MRanking / {t("Local prototype")}</span>
+          <span>MRanking / {t("Tournament platform")}</span>
           <span>
             {t("UPLOAD")} → {t("COMPARE")} → {t("CROWN")}
           </span>
           <span>© 2026</span>
         </footer>
         {loginOpen && (
-          <LoginModal onClose={() => setLoginOpen(false)} onLogin={login} />
+          <LoginModal
+            onClose={() => setLoginOpen(false)}
+            onLogin={login}
+            onRegister={register}
+          />
         )}
         {toast && (
           <div className="toast" role="status">
@@ -1333,7 +1296,6 @@ function Header({
   onLanguageOpen,
   onLanguage,
   onProfile,
-  onAdmin,
   onLogout,
   onAvatar,
 }: {
@@ -1347,7 +1309,6 @@ function Header({
   onLanguageOpen: () => void;
   onLanguage: (language: Language) => void;
   onProfile: () => void;
-  onAdmin: () => void;
   onLogout: () => void;
   onAvatar: (url: string) => void;
 }) {
@@ -1411,7 +1372,6 @@ function Header({
           {user && profileOpen && (
             <ProfileMenu
               user={user}
-              onAdmin={onAdmin}
               onLogout={onLogout}
               onAvatar={onAvatar}
             />
@@ -1463,12 +1423,10 @@ function UserAvatar({ user }: { user: User | null }) {
 
 function ProfileMenu({
   user,
-  onAdmin,
   onLogout,
   onAvatar,
 }: {
   user: User;
-  onAdmin: () => void;
   onLogout: () => void;
   onAvatar: (url: string) => void;
 }) {
@@ -1506,7 +1464,7 @@ function ProfileMenu({
         <UserAvatar user={user} />
         <div>
           <b>{user.nickname}</b>
-          <span>{t(user.role === "admin" ? "Admin" : "User")}</span>
+          <span>{t("Profile")}</span>
         </div>
       </div>
       <label className="menu-action upload-action">
@@ -1514,11 +1472,6 @@ function ProfileMenu({
         <input type="file" accept="image/*" onChange={upload} />
       </label>
       {avatarError && <span className="profile-menu-error">{avatarError}</span>}
-      {user.role === "admin" && (
-        <button className="menu-action" onClick={onAdmin}>
-          {t("Admin")}
-        </button>
-      )}
       <button className="menu-action danger" onClick={onLogout}>
         {t("Sign out")}
       </button>
@@ -3179,11 +3132,14 @@ function BracketTrack({
 function LoginModal({
   onClose,
   onLogin,
+  onRegister,
 }: {
   onClose: () => void;
   onLogin: (nickname: string, password: string) => Promise<void>;
+  onRegister: (nickname: string, password: string) => Promise<void>;
 }) {
   const { t } = useI18n();
+  const [mode, setMode] = useState<"login" | "register">("login");
   const [nickname, setNickname] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -3193,7 +3149,8 @@ function LoginModal({
     setBusy(true);
     setError("");
     try {
-      await onLogin(nickname, password);
+      if (mode === "register") await onRegister(nickname, password);
+      else await onLogin(nickname, password);
     } catch (nextError) {
       setError(t((nextError as Error).message));
     } finally {
@@ -3207,8 +3164,8 @@ function LoginModal({
           ×
         </button>
         <LogoMark />
-        <span className="modal-kicker">{t("PRIVATE ARENA")}</span>
-        <h2>{t("Sign in to continue")}</h2>
+        <span className="modal-kicker">{t("YOUR PROFILE")}</span>
+        <h2>{t(mode === "register" ? "Create your profile" : "Sign in to continue")}</h2>
         <label className="field">
           <span>{t("Nickname")}</span>
           <input
@@ -3216,6 +3173,9 @@ function LoginModal({
             value={nickname}
             onChange={(event) => setNickname(event.target.value)}
             autoComplete="username"
+            minLength={2}
+            maxLength={40}
+            required
           />
         </label>
         <label className="field">
@@ -3224,229 +3184,28 @@ function LoginModal({
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            autoComplete="current-password"
+            autoComplete={mode === "register" ? "new-password" : "current-password"}
+            minLength={6}
+            maxLength={128}
+            required
           />
         </label>
         {error && <div className="form-error">{error}</div>}
         <button className="button primary" disabled={busy}>
-          {busy ? "…" : t("Sign in")}
+          {busy ? "…" : t(mode === "register" ? "Create account" : "Sign in")}
           <span>↗</span>
+        </button>
+        <button
+          className="auth-mode-switch"
+          type="button"
+          onClick={() => {
+            setMode((current) => current === "login" ? "register" : "login");
+            setError("");
+          }}
+        >
+          {t(mode === "register" ? "Already have an account? Sign in" : "New here? Create account")}
         </button>
       </form>
     </div>
-  );
-}
-
-function AdminView({ onBack }: { onBack: () => void }) {
-  const { t } = useI18n();
-  const [users, setUsers] = useState<AdminUser[]>([]);
-  const [allPacks, setAllPacks] = useState<Pack[]>([]);
-  const [nickname, setNickname] = useState("");
-  const [password, setPassword] = useState("");
-  const [avatarEmoji, setAvatarEmoji] = useState("🎧");
-  const [resetValues, setResetValues] = useState<Record<string, string>>({});
-  const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
-
-  const load = () =>
-    Promise.all([
-      api<{ users: AdminUser[] }>("/api/admin/users"),
-      api<{ packs: Pack[] }>("/api/packs?scope=all"),
-    ])
-      .then(([userData, packData]) => {
-        setUsers(userData.users);
-        setAllPacks(packData.packs);
-      })
-      .catch((nextError) => setError(nextError.message));
-  useEffect(() => {
-    void load();
-  }, []);
-
-  async function create(event: FormEvent) {
-    event.preventDefault();
-    setError("");
-    try {
-      await api("/api/admin/users", {
-        method: "POST",
-        body: JSON.stringify({ nickname, password, avatarEmoji }),
-      });
-      setNickname("");
-      setPassword("");
-      setNotice(t("User created"));
-      await load();
-    } catch (nextError) {
-      setError((nextError as Error).message);
-    }
-  }
-
-  async function reset(user: AdminUser) {
-    const nextPassword = resetValues[user.id] ?? "";
-    if (!nextPassword) return;
-    try {
-      await api("/api/admin/users", {
-        method: "PATCH",
-        body: JSON.stringify({ id: user.id, password: nextPassword }),
-      });
-      setResetValues((current) => ({ ...current, [user.id]: "" }));
-      setNotice(t("Password reset"));
-    } catch (nextError) {
-      setError((nextError as Error).message);
-    }
-  }
-
-  async function remove(user: AdminUser) {
-    if (!window.confirm(t("Delete {name}?", { name: user.nickname }))) return;
-    try {
-      await api(`/api/admin/users?id=${encodeURIComponent(user.id)}`, {
-        method: "DELETE",
-      });
-      setNotice(t("User deleted; their packs were preserved"));
-      await load();
-    } catch (nextError) {
-      setError((nextError as Error).message);
-    }
-  }
-
-  return (
-    <section className="page-wrap admin-view">
-      <FlowBack label="Back" onClick={onBack} />
-      <div className="page-heading">
-        <div>
-          <div className="eyebrow">
-            <span>●</span>
-            {t("ADMIN ONLY")}
-          </div>
-          <h2>{t("User control")}</h2>
-          <p>
-            {t("Create accounts, reset passwords and preserve their packs.")}
-          </p>
-        </div>
-      </div>
-      <div className="admin-layout">
-        <form className="create-user-panel" onSubmit={create}>
-          <span className="aside-label">{t("Create user")}</span>
-          <label className="field">
-            <span>{t("Nickname")}</span>
-            <input
-              value={nickname}
-              onChange={(event) => setNickname(event.target.value)}
-              required
-            />
-          </label>
-          <label className="field">
-            <span>{t("Password")}</span>
-            <input
-              type="password"
-              minLength={6}
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-            />
-          </label>
-          <div className="profile-emoji-grid">
-            {PROFILE_EMOJIS.map((emoji) => (
-              <button
-                type="button"
-                className={avatarEmoji === emoji ? "selected" : ""}
-                key={emoji}
-                onClick={() => setAvatarEmoji(emoji)}
-              >
-                {emoji}
-              </button>
-            ))}
-          </div>
-          <button className="button primary">
-            {t("Create user")}
-            <span>＋</span>
-          </button>
-          {error && <div className="form-error">{t(error)}</div>}
-          {notice && <div className="form-success">{notice}</div>}
-        </form>
-        <div className="user-table">
-          {users.map((item) => (
-            <article className={item.deletedAt ? "deleted" : ""} key={item.id}>
-              <span className="admin-avatar">
-                {item.avatarUrl ? (
-                  <img src={item.avatarUrl} alt="" />
-                ) : (
-                  item.avatarEmoji
-                )}
-              </span>
-              <div className="user-identity">
-                <b>{item.nickname}</b>
-                <small>
-                  {item.role} · {item.packCount} {t("packs")}
-                </small>
-              </div>
-              <span className={`user-status ${item.deletedAt ? "off" : ""}`}>
-                {t(item.deletedAt ? "Deleted" : "Active")}
-              </span>
-              {!item.deletedAt && (
-                <div className="reset-password">
-                  <input
-                    type="password"
-                    placeholder={t("New password")}
-                    value={resetValues[item.id] ?? ""}
-                    onChange={(event) =>
-                      setResetValues((current) => ({
-                        ...current,
-                        [item.id]: event.target.value,
-                      }))
-                    }
-                  />
-                  <button onClick={() => reset(item)}>
-                    {t("Reset password")}
-                  </button>
-                </div>
-              )}
-              {!item.deletedAt && item.role !== "admin" && (
-                <button className="delete-user" onClick={() => remove(item)}>
-                  {t("Delete user")}
-                </button>
-              )}
-            </article>
-          ))}
-        </div>
-      </div>
-      <div className="admin-pack-audit">
-        <div className="section-line">
-          <div>
-            <h3>{t("All private packs")}</h3>
-            <p>{t("Every imported pack and its owner.")}</p>
-          </div>
-          <span>{allPacks.length}</span>
-        </div>
-        {allPacks.length === 0 ? (
-          <div className="admin-pack-empty">
-            {t("No packs have been imported yet.")}
-          </div>
-        ) : (
-          <div className="admin-pack-grid">
-            {allPacks.map((pack) => {
-              const owner = users.find((item) => item.id === pack.ownerId);
-              return (
-                <article key={pack.id}>
-                  <div className="admin-pack-cover">
-                    <PackCover pack={pack} />
-                  </div>
-                  <div>
-                    <b>{pack.name}</b>
-                    <small>
-                      {pack.itemCount}{" "}
-                      {t(isYouTubeSource(pack.sourceType) ? "videos" : "tracks")}{" "}
-                      · {t(sourceName(pack.sourceType))}
-                    </small>
-                  </div>
-                  <span className={owner?.deletedAt ? "owner-deleted" : ""}>
-                    {pack.ownerNickname}
-                    {owner?.deletedAt ? ` · ${t("Deleted")}` : ""}
-                  </span>
-                </article>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    </section>
   );
 }
