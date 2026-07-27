@@ -16,6 +16,7 @@ type UserRow = {
 
 const SESSION_COOKIE = "mranking_session";
 const SESSION_SECONDS = 60 * 60 * 24 * 30;
+const PASSWORD_ITERATIONS = 100_000;
 let schemaPromise: Promise<void> | null = null;
 
 export function runtimeEnv() {
@@ -124,7 +125,7 @@ export function normalizeNickname(value: string) {
 export async function hashPassword(password: string, saltBase64?: string) {
   const salt = saltBase64 ? base64ToBytes(saltBase64) : crypto.getRandomValues(new Uint8Array(16));
   const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveBits"]);
-  const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", salt, iterations: 210_000, hash: "SHA-256" }, key, 256);
+  const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", salt, iterations: PASSWORD_ITERATIONS, hash: "SHA-256" }, key, 256);
   return { salt: bytesToBase64(salt), hash: bytesToBase64(new Uint8Array(bits)) };
 }
 

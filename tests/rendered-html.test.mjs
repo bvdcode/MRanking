@@ -168,7 +168,8 @@ test("server supports self-registration, ownership and durable storage", async (
   ]);
 
   assert.match(server, /PBKDF2/);
-  assert.match(server, /210_000/);
+  assert.match(server, /PASSWORD_ITERATIONS = 100_000/);
+  assert.doesNotMatch(server, /iterations: 210_000/);
   assert.match(server, /HttpOnly; SameSite=Lax/);
   assert.match(server, /protocol === "https:" \? "; Secure"/);
   assert.doesNotMatch(server, /requireAdmin|MRANKING_ADMIN|role TEXT/);
@@ -191,7 +192,10 @@ test("server supports self-registration, ownership and durable storage", async (
   assert.match(schema, /CREATE TABLE `results`/);
   assert.match(resultMigration, /ADD `pack_json` text/);
   assert.match(roleMigration, /DROP COLUMN `role`/);
-  assert.deepEqual(JSON.parse(hosting), { d1: "DB", r2: "AVATARS" });
+  const hostingConfig = JSON.parse(hosting);
+  assert.equal(hostingConfig.d1, "DB");
+  assert.equal(hostingConfig.r2, "AVATARS");
+  assert.match(hostingConfig.project_id, /^appgprj_/);
 });
 
 test("YouTube importer handles current and classic playlist renderers", async () => {
