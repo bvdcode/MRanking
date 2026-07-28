@@ -57,7 +57,7 @@ export function MRankingApp() {
     startPack: startRun,
     chooseWinner,
     undo,
-    skip,
+    reshuffle,
   } = tournament;
   const activeRunStatus = activeRun?.session.status;
   const {
@@ -286,7 +286,7 @@ export function MRankingApp() {
               run={activeRun}
               onPick={chooseWinner}
               onUndo={undo}
-              onSkip={skip}
+              onReshuffle={reshuffle}
               onExit={() => setActiveRun(null)}
             />
           )}

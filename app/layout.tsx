@@ -35,16 +35,16 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL(`${protocol}://${host}`),
     title: "MRanking — Upload. Compare. Crown.",
-    description: "Turn playlists and collections into head-to-head tournaments and crown one winner.",
+    description: "Turn playlists and collections into packs, then compare, tier, score or rank them your way.",
     openGraph: {
       title: "MRanking — Upload. Compare. Crown.",
-      description: "Turn a playlist into a private King of the Hill tournament.",
-      images: [{ url: "/og.png", width: 1536, height: 1024, alt: "MRanking tournament bracket leading to one crowned winner." }],
+      description: "Upload one pack and explore multiple ways to compare, rank and score it.",
+      images: [{ url: "/og.png", width: 1536, height: 1024, alt: "MRanking turns one collection into multiple ranking modes." }],
     },
     twitter: {
       card: "summary_large_image",
       title: "MRanking — Upload. Compare. Crown.",
-      description: "Turn a playlist into a private King of the Hill tournament.",
+      description: "Upload one pack and explore multiple ways to compare, rank and score it.",
       images: ["/og.png"],
     },
   };

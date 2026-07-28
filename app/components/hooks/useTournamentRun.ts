@@ -185,18 +185,37 @@ export function useTournamentRun({
     });
   }
 
-  function skip() {
+  function reshuffle() {
     setActiveRun((run) => {
       if (!run || run.session.status !== "active") {
         return run;
       }
       const session = cloneSession(run.session);
       if (session.isCarryMatch || !session.pendingPairs.length) {
-        session.activePair = [session.activePair[1], session.activePair[0]];
-      } else {
-        session.pendingPairs.push(session.activePair);
-        session.activePair = session.pendingPairs.shift()!;
+        return run;
       }
+
+      const pendingIndex = Math.floor(
+        Math.random() * session.pendingPairs.length,
+      );
+      const [otherPair] = session.pendingPairs.splice(pendingIndex, 1);
+      const [first, second] = session.activePair;
+      const [third, fourth] = otherPair;
+      const replacements: [string, string][] =
+        Math.random() < 0.5
+          ? [
+              [first, third],
+              [second, fourth],
+            ]
+          : [
+              [first, fourth],
+              [second, third],
+            ];
+      const [activePair, pendingPair] = shuffle(replacements).map(
+        (pair) => shuffle(pair) as [string, string],
+      );
+      session.activePair = activePair;
+      session.pendingPairs.splice(pendingIndex, 0, pendingPair);
       return { session, undoStack: [...run.undoStack, snapshot(run.session)] };
     });
   }
@@ -213,6 +232,6 @@ export function useTournamentRun({
     startPack,
     chooseWinner,
     undo,
-    skip,
+    reshuffle,
   };
 }

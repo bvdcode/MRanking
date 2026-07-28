@@ -73,7 +73,7 @@ test("ships the redesigned application shell", async () => {
     readApplicationSource(),
   ]);
   assert.match(page, /MRanking — Upload\. Compare\. Crown\./);
-  assert.match(layout, /MRanking tournament bracket/);
+  assert.match(layout, /multiple ranking modes/);
   assert.match(client, /LOADING ARENA/);
   assert.doesNotMatch(
     `${page}${layout}${client}`,
@@ -136,7 +136,7 @@ test("client includes the private playlist-to-tournament flow", async () => {
   assert.match(source, /Open on YouTube/);
   assert.match(source, /onPick/);
   assert.match(source, /undoStack/);
-  assert.match(source, /isCarryMatch/);
+  assert.match(source, /function reshuffle\(\)/);
   assert.match(source, /Full ranking/);
   assert.match(source, /function TournamentBracket/);
   assert.match(source, /className="result-history-card"/);
@@ -146,7 +146,7 @@ test("client includes the private playlist-to-tournament flow", async () => {
   assert.match(source, /Delete history/);
   assert.match(source, /Tier List/);
   assert.match(source, /Blind Ranking/);
-  assert.match(source, /Single Elimination/);
+  assert.match(source, /Reshuffle pair/);
   const packLibrary = await readFile(
     new URL("../app/components/packs/PackLibraryView.tsx", import.meta.url),
     "utf8",
@@ -183,11 +183,11 @@ test("home keeps a clean primary hierarchy", async () => {
     ),
     readStyles(),
   ]);
-  assert.match(styles, /\.duel-board \{[^}]*max-width: 1640px/);
-  assert.match(styles, /\.battle-controls button \{[^}]*min-height: 54px/);
-  assert.match(styles, /\.track-info p \{[^}]*font-size: 12px/);
-  assert.doesNotMatch(home, /home-theses/);
-  assert.doesNotMatch(styles, /\.home-theses/);
+  assert.match(styles, /:lang\(en\) body \{ --font-display: var\(--font-body\)/);
+  assert.match(styles, /\.ranking-studio \{/);
+  assert.match(styles, /@keyframes studio-float/);
+  assert.match(home, /ONE PACK \/ MANY WAYS/);
+  assert.doesNotMatch(home, /TournamentVisual|LIVE BRACKET/);
 });
 
 test("mobile layout is touch-first and respects phone safe areas", async () => {
@@ -263,7 +263,7 @@ test("responsive layout prevents viewport and mobile overflow regressions", asyn
   assert.match(header, /className="profile-label"/);
   assert.match(responsive, /\.profile-chip > \.profile-label/);
   assert.doesNotMatch(responsive, /\.profile-chip > span/);
-  assert.match(responsive, /\.visual-final \{[^}]*transform: none/);
+  assert.match(responsive, /\.ranking-studio \{[^}]*display: flex/);
   assert.match(responsive, /\.winner-card \{[^}]*transform: none/);
   assert.match(
     responsive,

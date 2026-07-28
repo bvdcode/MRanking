@@ -3,7 +3,7 @@ import { MRankingApp } from "./MRankingApp";
 
 export const metadata: Metadata = {
   title: "MRanking — Upload. Compare. Crown.",
-  description: "Import a YouTube playlist, compare every contender and crown one winner.",
+  description: "Turn playlists and collections into packs, then compare, tier, score or rank them your way.",
 };
 
 export default function Home() {

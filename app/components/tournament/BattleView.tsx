@@ -12,14 +12,14 @@ export function BattleView({
   run,
   onPick,
   onUndo,
-  onSkip,
+  onReshuffle,
   onExit,
 }: {
   pack: Pack;
   run: ActiveRun;
   onPick: (id: string) => void;
   onUndo: () => void;
-  onSkip: () => void;
+  onReshuffle: () => void;
   onExit: () => void;
 }) {
   const { t } = useI18n();
@@ -124,9 +124,15 @@ export function BattleView({
           <span aria-hidden="true">↶</span>
           {t("Undo")}
         </button>
-        <button className="battle-skip" onClick={onSkip}>
-          {t("Skip pair")}
-          <span aria-hidden="true">→</span>
+        <button
+          className="battle-skip"
+          disabled={
+            run.session.isCarryMatch || !run.session.pendingPairs.length
+          }
+          onClick={onReshuffle}
+        >
+          {t("Reshuffle pair")}
+          <span aria-hidden="true">⟳</span>
         </button>
       </div>
     </section>

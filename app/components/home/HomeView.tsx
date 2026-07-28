@@ -23,7 +23,7 @@ export function HomeView({ onStart }: { onStart: () => void }) {
           <span>↗</span>
         </button>
       </div>
-      <TournamentVisual />
+      <RankingStudio />
       <div className="home-flow">
         <span>01 {t("UPLOAD")}</span>
         <i>→</i>
@@ -37,51 +37,53 @@ export function HomeView({ onStart }: { onStart: () => void }) {
   );
 }
 
-function TournamentVisual() {
+function RankingStudio() {
   const { t } = useI18n();
-  const labels = [
-    "NIGHT DRIVE",
-    "B-SIDE",
-    "FAVOURITE",
-    "DEEP CUT",
-    "WILDCARD",
-    "ANTHEM",
-    "CLASSIC",
-    "NEW ONE",
+  const modes = [
+    { icon: "VS", label: "Versus" },
+    { icon: "T", label: "Tier List" },
+    { icon: "★", label: "Score Everything" },
+    { icon: "?", label: "Blind Ranking" },
   ];
   return (
     <div
-      className="tournament-visual"
-      aria-label={t("Animated tournament bracket")}
+      className="ranking-studio"
+      aria-label={t("One pack, many ranking modes")}
     >
-      <span className="visual-caption">{t("LIVE BRACKET / 64 ENTRIES")}</span>
-      <div className="source-disc">
-        <span>64</span>
-        <small>{t("ITEMS")}</small>
+      <span className="studio-caption">{t("ONE PACK / MANY WAYS")}</span>
+      <div className="studio-input">
+        <div className="studio-media-stack" aria-hidden="true">
+          <i className="studio-media-card studio-media-one" />
+          <i className="studio-media-card studio-media-two" />
+          <i className="studio-media-card studio-media-three" />
+        </div>
+        <div className="studio-pack-core">
+          <small>{t("MY PACK")}</small>
+          <span>64</span>
+          <b>{t("ITEMS")}</b>
+        </div>
       </div>
-      <div className="visual-round round-a">
-        {labels.map((label, index) => (
-          <div className={`visual-delay-${index}`} key={label}>
-            <i className={`neutral-thumb neutral-${index % 4}`} />
-            <span>{label}</span>
+      <div className="studio-switch" aria-hidden="true">
+        <i />
+        <span>+</span>
+        <i />
+      </div>
+      <div className="studio-modes">
+        {modes.map((mode, index) => (
+          <div
+            className={`studio-mode-card studio-mode-${index + 1}`}
+            key={mode.label}
+          >
+            <i>{mode.icon}</i>
+            <span>0{index + 1}</span>
+            <b>{t(mode.label)}</b>
           </div>
         ))}
       </div>
-      <div className="visual-connectors one" />
-      <div className="visual-round round-b">
-        {["NIGHT DRIVE", "FAVOURITE", "ANTHEM", "CLASSIC"].map(
-          (label, index) => (
-            <div key={label}>
-              <i className={`neutral-thumb neutral-${index}`} />
-              <span>{label}</span>
-            </div>
-          ),
-        )}
-      </div>
-      <div className="visual-connectors two" />
-      <div className="visual-final">
-        <span>♛</span>
-        <b>{t("THE ONE")}</b>
+      <div className="studio-status">
+        <span>{t("UPLOAD ONCE")}</span>
+        <b>{t("PLAY IT YOUR WAY")}</b>
+        <i>{t("READY")}</i>
       </div>
     </div>
   );
