@@ -15,6 +15,7 @@ export function KingLibraryView({
   onPacks,
   onStart,
   onContinue,
+  onCancelRun,
   onOpenResult,
   onDeleteResult,
 }: {
@@ -25,6 +26,7 @@ export function KingLibraryView({
   onPacks: () => void;
   onStart: (pack: Pack) => void;
   onContinue: (pack: Pack) => void;
+  onCancelRun: (pack: Pack) => void;
   onOpenResult: (result: SavedResult) => void;
   onDeleteResult: (result: SavedResult) => void;
 }) {
@@ -39,9 +41,6 @@ export function KingLibraryView({
             {t("King of the Hill")}
           </div>
           <h2>{t("Choose a pack")}</h2>
-          <p>
-            {t("Select one of your private packs to start the tournament.")}
-          </p>
         </div>
       </div>
       {packs.length === 0 ? (
@@ -92,12 +91,20 @@ export function KingLibraryView({
                 </div>
                 <div className="pack-actions mode-pack-actions">
                   {runs[pack.id] ? (
-                    <button
-                      className="continue"
-                      onClick={() => onContinue(pack)}
-                    >
-                      {t("Continue")}
-                    </button>
+                    <>
+                      <button
+                        className="continue"
+                        onClick={() => onContinue(pack)}
+                      >
+                        {t("Continue")}
+                      </button>
+                      <button
+                        className="danger"
+                        onClick={() => onCancelRun(pack)}
+                      >
+                        {t("Cancel run")}
+                      </button>
+                    </>
                   ) : (
                     <button onClick={() => onStart(pack)}>{t("Play")}</button>
                   )}

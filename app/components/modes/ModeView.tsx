@@ -65,7 +65,6 @@ export function ModeView({
             <span>●</span>02 / {t("FORMAT")}
           </div>
           <h2>{t("Choose a mode")}</h2>
-          <p>{t("Choose how you want to rate your private packs.")}</p>
         </div>
       </div>
       <div className="mode-grid">

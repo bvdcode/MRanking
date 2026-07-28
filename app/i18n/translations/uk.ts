@@ -131,6 +131,10 @@ export const UK_TRANSLATIONS: Record<string, string> = {
     "Your imported playlists will appear here.":
       "Імпортовані плейлисти з'являться тут.",
     Continue: "Продовжити",
+    "Cancel run": "Скасувати проходження",
+    "Cancel current run for “{name}”?":
+      "Скасувати поточне проходження «{name}»?",
+    "Run cancelled": "Проходження скасовано",
     Play: "Грати",
     Edit: "Змінити",
     Export: "Експорт",

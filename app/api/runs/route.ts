@@ -86,6 +86,9 @@ export async function DELETE(request: Request) {
       return auth.response;
     }
     const packId = new URL(request.url).searchParams.get("packId") ?? "";
+    if (!packId) {
+      return Response.json({ error: "Pack id required" }, { status: 400 });
+    }
     await getD1()
       .prepare("DELETE FROM runs WHERE user_id = ? AND pack_id = ?")
       .bind(auth.user.id, packId)

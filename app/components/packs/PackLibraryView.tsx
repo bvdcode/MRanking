@@ -26,7 +26,6 @@ export function PackLibraryView({
             {t("YOUR LIBRARY")}
           </div>
           <h2>{t("Your packs")}</h2>
-          <p>{t("Only you can see the packs uploaded to this account.")}</p>
         </div>
       </div>
       {packs.length === 0 ? (

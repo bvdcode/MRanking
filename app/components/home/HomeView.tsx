@@ -22,11 +22,6 @@ export function HomeView({ onStart }: { onStart: () => void }) {
           {t("Start a tournament")}
           <span>↗</span>
         </button>
-        <div className="home-theses">
-          <span>{t("ONE SOURCE")}</span>
-          <span>{t("MANY CONTENDERS")}</span>
-          <span>{t("ONE WINNER")}</span>
-        </div>
       </div>
       <TournamentVisual />
       <div className="home-flow">

@@ -133,6 +133,10 @@ export const RU_TRANSLATIONS: Record<string, string> = {
     "Your imported playlists will appear here.":
       "Загруженные плейлисты появятся здесь.",
     Continue: "Продолжить",
+    "Cancel run": "Отменить прохождение",
+    "Cancel current run for “{name}”?":
+      "Отменить текущее прохождение «{name}»?",
+    "Run cancelled": "Прохождение отменено",
     Play: "Играть",
     Edit: "Изменить",
     Export: "Экспорт",

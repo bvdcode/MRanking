@@ -21,6 +21,7 @@ type UsePrivateLibraryResult = {
   updateAvatar: (avatarUrl: string) => void;
   savePack: (draft: EditablePack) => Promise<Pack>;
   deletePack: (pack: Pack) => Promise<void>;
+  cancelRun: (pack: Pack) => Promise<boolean>;
   deleteResult: (result: SavedResult) => Promise<boolean>;
 };
 
@@ -132,6 +133,34 @@ export function usePrivateLibrary(
     onToast(t("Pack deleted"));
   }
 
+  async function cancelRun(pack: Pack): Promise<boolean> {
+    if (
+      !window.confirm(
+        t("Cancel current run for “{name}”?", { name: pack.name }),
+      )
+    ) {
+      return false;
+    }
+
+    try {
+      await api(`/api/runs?packId=${encodeURIComponent(pack.id)}`, {
+        method: "DELETE",
+      });
+      setSavedRuns((current) => {
+        const next = { ...current };
+        delete next[pack.id];
+        return next;
+      });
+      onToast(t("Run cancelled"));
+      return true;
+    } catch (error) {
+      onToast(
+        error instanceof Error ? error.message : t("Something went wrong"),
+      );
+      return false;
+    }
+  }
+
   async function deleteResult(result: SavedResult): Promise<boolean> {
     const pack =
       result.pack ??
@@ -173,6 +202,7 @@ export function usePrivateLibrary(
     updateAvatar,
     savePack,
     deletePack,
+    cancelRun,
     deleteResult,
   };
 }

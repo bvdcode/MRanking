@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const applicationSources = [
+  "../app/api/runs/route.ts",
   "../app/MRankingApp.tsx",
   "../app/components/MRankingApp.tsx",
   "../app/components/auth/LoginModal.tsx",
@@ -159,6 +160,11 @@ test("client includes the private playlist-to-tournament flow", async () => {
   );
   assert.match(kingLibrary, /onStart/);
   assert.match(kingLibrary, /onContinue/);
+  assert.match(kingLibrary, /onCancelRun/);
+  assert.match(kingLibrary, /Cancel run/);
+  assert.match(source, /async function cancelRun\(pack: Pack\)/);
+  assert.match(source, /DELETE FROM runs WHERE user_id = \? AND pack_id = \?/);
+  assert.match(source, /media-play-close" : "media-play-open/);
   assert.match(kingLibrary, /className="pack-tile add-pack-tile"/);
   assert.match(kingLibrary, /onClick=\{onPacks\}/);
   assert.match(kingLibrary, /Add a pack/);
@@ -166,12 +172,21 @@ test("client includes the private playlist-to-tournament flow", async () => {
   assert.doesNotMatch(source, /DEMO_PACKS|VLAD_HOBBIES|POP_PUNK_TOP_64/);
 });
 
-test("home supporting copy is deliberately larger", async () => {
-  const styles = await readStyles();
+test("home keeps a clean primary hierarchy", async () => {
+  const [home, styles] = await Promise.all([
+    readFile(
+      new URL("../app/components/home/HomeView.tsx", import.meta.url),
+      "utf8",
+    ),
+    readStyles(),
+  ]);
   assert.match(styles, /\.home-copy \.eyebrow \{ font-size: 13px/);
-  assert.match(styles, /\.home-theses span \{[^}]*font-size: 11px/);
   assert.match(styles, /\.home-flow \{[^}]*font-size: 11px/);
   assert.match(styles, /\.button\.jumbo \{[^}]*font-size: 15px/);
+  assert.match(styles, /\.track-choice \{[^}]*border: 2px solid/);
+  assert.match(styles, /\.media-play-open \{[^}]*left: 50%; top: 50%/);
+  assert.doesNotMatch(home, /home-theses/);
+  assert.doesNotMatch(styles, /\.home-theses/);
 });
 
 test("mobile layout is touch-first and respects phone safe areas", async () => {

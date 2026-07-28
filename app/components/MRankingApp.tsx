@@ -67,6 +67,7 @@ export function MRankingApp() {
     results,
     savedRuns,
     deletePack,
+    cancelRun,
     updateAvatar,
   } = library;
 
@@ -267,6 +268,7 @@ export function MRankingApp() {
             }}
             onStart={(pack) => startTournament(pack)}
             onContinue={(pack) => startTournament(pack, true)}
+            onCancelRun={(pack) => void cancelRun(pack)}
             onOpenResult={(result) => {
               setViewedResult(result);
               window.scrollTo({ top: 0, behavior: "smooth" });

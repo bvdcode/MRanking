@@ -151,9 +151,14 @@ function TrackChoice({
         ) : (
           <RemoteImage src={item.thumbnailUrl} alt="" />
         )}
-        <button className="media-play" onClick={onPlay}>
-          {playing ? t("Close player") : t("Play track")}
-          <span>{playing ? "×" : "▶"}</span>
+        <button
+          className={`media-play ${
+            playing ? "media-play-close" : "media-play-open"
+          }`}
+          onClick={onPlay}
+          aria-label={t(playing ? "Close player" : "Play track")}
+        >
+          <span aria-hidden="true">{playing ? "×" : "▶"}</span>
         </button>
       </div>
       <div className="track-info">

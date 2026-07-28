@@ -76,9 +76,6 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 :lang(ru) .home-copy h1, :lang(uk) .home-copy h1 { font-size: clamp(56px,5.5vw,90px); line-height: .86; }
 .home-copy h1 em { color: var(--acid); font-style: normal; }
 .button.jumbo { min-height: 70px; padding: 0 34px; font-size: 15px; }
-.home-theses { display: flex; margin-top: 64px; max-width: 570px; border-top: 1px solid var(--line); }
-.home-theses span { flex: 1; padding-top: 17px; color: #8b938c; font-size: 11px; line-height: 1.35; letter-spacing: .1em; border-right: 1px solid var(--line); }
-.home-theses span:last-child { border: 0; padding-left: 20px; color: var(--acid); }
 .tournament-visual { margin: 7vh 4vw 3vh 0; min-height: 610px; position: relative; z-index: 2; border: 1px solid #343a33; background: #0d0f0dcc; box-shadow: 25px 28px 70px #000b; display: grid; grid-template-columns: 100px 1.35fr 60px 1fr 60px 145px; align-items: center; padding: 40px 28px; transform: perspective(1200px) rotateY(-4deg) rotateX(1deg); }
 .visual-caption { position: absolute; top: 16px; left: 22px; color: #7d867e; font-size: 9px; letter-spacing: .13em; }
 .source-disc { width: 82px; height: 82px; border-radius: 50%; border: 1px solid #4a514a; display: grid; place-items: center; align-content: center; animation: disc-pulse 2.8s ease-in-out infinite; }
@@ -115,7 +112,6 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .upload-view + .library-view, .editor-view + .library-view { min-height: auto; padding-top: 68px; border-top: 1px solid var(--line); }
 .page-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 45px; margin-bottom: 48px; }
 .page-heading h2 { margin: 16px 0 10px; font: 830 clamp(52px,5vw,78px)/.88 var(--font-display); text-transform: uppercase; letter-spacing: -.06em; }
-.page-heading p { margin: 0; color: var(--muted); font-size: 14px; }
 .source-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
 .source-tile { min-height: 260px; border: 1px solid var(--line); background: #111311; padding: 24px; display: flex; flex-direction: column; align-items: flex-start; text-align: left; position: relative; overflow: hidden; cursor: pointer; transition: transform .24s ease, border-color .24s ease, background .24s ease, box-shadow .24s ease; }
 .source-tile::after { content: ""; position: absolute; width: 220px; height: 220px; border: 35px solid currentColor; border-radius: 50%; opacity: .04; right: -105px; bottom: -130px; }

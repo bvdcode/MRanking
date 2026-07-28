@@ -208,9 +208,6 @@ export function UploadView({
             <span>●</span>01 / {t("INPUT")}
           </div>
           <h2>{t("Choose a source")}</h2>
-          <p>
-            {t("Turn a link, file or collection into something you can rank.")}
-          </p>
         </div>
       </div>
       <MusicSourceChooser
