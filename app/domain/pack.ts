@@ -61,12 +61,12 @@ export function sourceName(sourceType: SourceType) {
   return "YouTube";
 }
 
-export function mediaEmbedUrl(sourceType: SourceType, item: PackItem) {
+export function mediaPlayerUrl(sourceType: SourceType, item: PackItem) {
   if (sourceType === "spotify") {
     return `https://open.spotify.com/embed/track/${encodeURIComponent(item.videoId)}?utm_source=generator`;
   }
   if (sourceType === "yandexMusic") {
-    return `https://music.yandex.ru/iframe/track/${encodeURIComponent(item.videoId)}`;
+    return `/api/yandex-music/playback?trackId=${encodeURIComponent(item.videoId)}`;
   }
   return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(item.videoId)}?autoplay=1&rel=0`;
 }

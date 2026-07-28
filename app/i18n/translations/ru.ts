@@ -180,6 +180,9 @@ export const RU_TRANSLATIONS: Record<string, string> = {
     "Open on YouTube": "Открыть на YouTube",
     "Open in music service": "Открыть в музыкальном сервисе",
     "Play track": "Включить трек",
+    "Yandex Music preview": "Превью Яндекс Музыки",
+    "Yandex Music preview is unavailable":
+      "Превью Яндекс Музыки недоступно",
     "Choose this": "Выбрать",
     Undo: "Отменить",
     "Reshuffle pair": "Перемешать пару",

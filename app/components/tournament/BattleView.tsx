@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import type { ActiveRun, Pack, PackItem, SourceType } from "../../../lib/types";
-import { mediaEmbedUrl } from "../../domain/pack";
 import { useI18n } from "../../i18n/I18nContext";
 import { FlowBack } from "../shared/FlowBack";
+import { MediaPlayer } from "../shared/MediaPlayer";
 import { RemoteImage } from "../shared/RemoteImage";
 
 export function BattleView({
@@ -157,12 +157,7 @@ function TrackChoice({
     <article className="track-choice">
       <div className="track-media">
         {playing ? (
-          <iframe
-            src={mediaEmbedUrl(sourceType, item)}
-            title={item.title}
-            allow="autoplay; encrypted-media; picture-in-picture"
-            allowFullScreen
-          />
+          <MediaPlayer item={item} sourceType={sourceType} />
         ) : (
           <RemoteImage src={item.thumbnailUrl} alt="" />
         )}

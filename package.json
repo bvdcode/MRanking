@@ -10,7 +10,7 @@
     "dev": "vinext dev",
     "build": "vinext build",
     "start": "vinext start",
-    "test": "vinext build && tsc --noEmit && node --test tests/rendered-html.test.mjs tests/wheel-and-localization.test.mjs tests/wheel-domain.test.mjs",
+    "test": "vinext build && tsc --noEmit && node --test tests/rendered-html.test.mjs tests/wheel-and-localization.test.mjs tests/wheel-domain.test.mjs tests/yandex-playback.test.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern \"Themes inputs\"",
     "db:generate": "drizzle-kit generate"

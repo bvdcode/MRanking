@@ -7,8 +7,8 @@ import type {
   WheelRun,
   WheelSettings,
 } from "../../../lib/types";
-import { mediaEmbedUrl } from "../../domain/pack";
 import { useI18n } from "../../i18n/I18nContext";
+import { MediaPlayer } from "../shared/MediaPlayer";
 import { RemoteImage } from "../shared/RemoteImage";
 
 type WheelHeaderProps = {
@@ -189,12 +189,7 @@ export function WheelWinner({
       </div>
       {playerOpen && (
         <div className="wheel-winner-player">
-          <iframe
-            src={mediaEmbedUrl(pack.sourceType, winner)}
-            title={`${winner.title} — ${winner.channel}`}
-            allow="autoplay; encrypted-media; picture-in-picture"
-            allowFullScreen
-          />
+          <MediaPlayer item={winner} sourceType={pack.sourceType} />
         </div>
       )}
     </section>

@@ -21,6 +21,7 @@ const applicationSources = [
   "../app/components/packs/ProfilePlaylistPicker.tsx",
   "../app/components/packs/UploadView.tsx",
   "../app/components/shared/FlowBack.tsx",
+  "../app/components/shared/MediaPlayer.tsx",
   "../app/components/shared/RemoteImage.tsx",
   "../app/components/tournament/BattleView.tsx",
   "../app/components/tournament/ResultView.tsx",
@@ -106,9 +107,10 @@ test("client includes the private playlist-to-tournament flow", async () => {
   assert.match(source, /MUSIC_SERVICE_TILES/);
   assert.match(source, /\/api\/spotify/);
   assert.match(source, /\/api\/yandex-music/);
-  assert.match(source, /mediaEmbedUrl/);
+  assert.match(source, /mediaPlayerUrl/);
   assert.match(source, /open\.spotify\.com\/embed\/track/);
-  assert.match(source, /music\.yandex\.ru\/iframe\/track/);
+  assert.match(source, /\/api\/yandex-music\/playback\?trackId=/);
+  assert.match(source, /<audio/);
   assert.match(source, /\/api\/youtube/);
   assert.match(source, /data\.kind === "profile"/);
   assert.match(source, /function ProfilePlaylistPicker/);
