@@ -47,6 +47,7 @@ export function UploadView({
   const controller = useRef<AbortController | null>(null);
   const mounted = useRef(true);
   const isEditing = editable !== null;
+  const hasProfile = profile !== null;
 
   useEffect(() => {
     mounted.current = true;
@@ -58,14 +59,11 @@ export function UploadView({
   }, []);
 
   useEffect(() => {
-    if (!isEditing) {
-      return;
-    }
     const frame = window.requestAnimationFrame(() => {
       window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [isEditing]);
+  }, [category, hasProfile, isEditing, source]);
 
   async function loadMusicUrl(nextUrl: string, preserveProfile = false) {
     controller.current?.abort();

@@ -57,12 +57,12 @@ const noInlineStyles = createRule(
   }),
 );
 
-const noViewportSizing = createRule(
-  "Use container-relative sizing instead of full viewport units.",
+const noFullViewportWidth = createRule(
+  "Use container-relative sizing instead of full viewport width.",
   (context) =>
     rootVisitors((node) => {
       const source = context.sourceCode.getText();
-      const match = source.match(/\b100(?:d|l|s)?v(?:h|w)\b/i);
+      const match = source.match(/\b100(?:d|l|s)?vw\b/i);
       if (match) {
         context.report({
           node,
@@ -115,7 +115,7 @@ const projectRules = {
     "no-inline-styles": noInlineStyles,
     "no-nested-assertions": noNestedAssertions,
     "no-unknown": noUnknown,
-    "no-viewport-sizing": noViewportSizing,
+    "no-full-viewport-width": noFullViewportWidth,
   },
 };
 

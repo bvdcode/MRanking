@@ -91,7 +91,9 @@ export function Header({
         <div className="profile-menu-wrap">
           <button className="profile-chip" onClick={onProfile}>
             <UserAvatar user={user} />
-            <span>{user?.nickname ?? t("Sign in")}</span>
+            <span className="profile-label">
+              {user?.nickname ?? t("Sign in")}
+            </span>
           </button>
           {user && profileOpen && (
             <ProfileMenu user={user} onLogout={onLogout} onAvatar={onAvatar} />

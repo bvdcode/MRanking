@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { SavedResult } from "../../lib/types";
+import type { Pack, SavedResult } from "../../lib/types";
 import { exportPack, packToEditable } from "../domain/pack";
 import { I18nContext, translate } from "../i18n/I18nContext";
 import { usePreferencesStore } from "../state/preferences";
@@ -46,10 +46,6 @@ export function MRankingApp() {
     savedRuns: library.savedRuns,
     setResults: library.setResults,
     setSavedRuns: library.setSavedRuns,
-    onStart: () => {
-      setViewedResult(null);
-      setView("hill");
-    },
     onToast: setToast,
     t,
   });
@@ -58,11 +54,12 @@ export function MRankingApp() {
     selectedPack,
     setActiveRun,
     setModePack,
-    startPack,
+    startPack: startRun,
     chooseWinner,
     undo,
     skip,
   } = tournament;
+  const activeRunStatus = activeRun?.session.status;
   const {
     booting,
     user,
@@ -70,6 +67,7 @@ export function MRankingApp() {
     results,
     savedRuns,
     deletePack,
+    updateAvatar,
   } = library;
 
   useEffect(() => {
@@ -80,14 +78,22 @@ export function MRankingApp() {
     return () => window.clearTimeout(timer);
   }, [toast]);
 
+  useEffect(() => {
+    if (activeRunStatus === "complete") {
+      scrollToPageTop("auto");
+    }
+  }, [activeRunStatus]);
+
   function protectedNavigate(next: Exclude<View, "home">): void {
+    setProfileOpen(false);
+    setLanguageOpen(false);
     if (!user) {
       setLoginOpen(true);
       return;
     }
     setViewedResult(null);
     setView(next);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    scrollToPageTop();
   }
 
   async function login(nickname: string, password: string): Promise<void> {
@@ -114,6 +120,7 @@ export function MRankingApp() {
     setEditable(null);
     setViewedResult(null);
     setView("packs");
+    scrollToPageTop();
   }
 
   async function deleteResult(result: SavedResult): Promise<void> {
@@ -134,7 +141,14 @@ export function MRankingApp() {
     setProfileOpen(false);
     setLanguageOpen(false);
     setToast("");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    scrollToPageTop();
+  }
+
+  function startTournament(pack: Pack, resume = false): void {
+    setViewedResult(null);
+    startRun(pack, resume);
+    setView("hill");
+    scrollToPageTop();
   }
 
   const viewedResultPack = viewedResult
@@ -164,21 +178,25 @@ export function MRankingApp() {
           profileOpen={profileOpen}
           onHome={goHome}
           onNavigate={protectedNavigate}
-          onLanguageOpen={() => setLanguageOpen((open) => !open)}
+          onLanguageOpen={() => {
+            setProfileOpen(false);
+            setLanguageOpen((open) => !open);
+          }}
           onLanguage={(next) => {
             setLanguage(next);
             document.documentElement.lang = next;
             setLanguageOpen(false);
           }}
-          onProfile={() =>
-            user ? setProfileOpen((open) => !open) : setLoginOpen(true)
-          }
+          onProfile={() => {
+            setLanguageOpen(false);
+            if (user) {
+              setProfileOpen((open) => !open);
+            } else {
+              setLoginOpen(true);
+            }
+          }}
           onLogout={logout}
-          onAvatar={(next) =>
-            library.setUser((current) =>
-              current ? { ...current, avatarUrl: next } : current,
-            )
-          }
+          onAvatar={updateAvatar}
         />
 
         {view === "home" && (
@@ -228,7 +246,7 @@ export function MRankingApp() {
               onAgain={
                 packs.some((pack) => pack.id === viewedResult.packId)
                   ? () =>
-                    startPack(
+                    startTournament(
                       packs.find((pack) => pack.id === viewedResult.packId)!,
                     )
                   : undefined
@@ -247,8 +265,8 @@ export function MRankingApp() {
               setEditable(null);
               protectedNavigate("packs");
             }}
-            onStart={(pack) => startPack(pack)}
-            onContinue={(pack) => startPack(pack, true)}
+            onStart={(pack) => startTournament(pack)}
+            onContinue={(pack) => startTournament(pack, true)}
             onOpenResult={(result) => {
               setViewedResult(result);
               window.scrollTo({ top: 0, behavior: "smooth" });
@@ -278,7 +296,7 @@ export function MRankingApp() {
             <ResultView
               pack={selectedPack}
               run={activeRun}
-              onAgain={() => startPack(selectedPack)}
+              onAgain={() => startTournament(selectedPack)}
               onBack={() => setActiveRun(null)}
             />
           )}
@@ -305,4 +323,10 @@ export function MRankingApp() {
       </main>
     </I18nContext.Provider>
   );
+}
+
+function scrollToPageTop(behavior: ScrollBehavior = "smooth"): void {
+  window.requestAnimationFrame(() => {
+    window.scrollTo({ top: 0, left: 0, behavior });
+  });
 }
