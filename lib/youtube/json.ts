@@ -45,7 +45,7 @@ export function thumbnailValue(value: JsonValue) {
   }
   const thumbnails = value.thumbnails.filter(isObject);
   return thumbnails.length
-    ? stringValue(thumbnails.at(-1)?.url).replace(/^\/\//, "https://")
+    ? stringValue(thumbnails.at(-1)?.url ?? "").replace(/^\/\//, "https://")
     : "";
 }
 

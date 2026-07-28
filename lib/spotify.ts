@@ -197,7 +197,7 @@ function spotifyImage(value: JsonValue) {
     return "";
   }
   const sources = value.sources.filter(isObject);
-  return sources.length ? stringValue(sources.at(-1)?.url) : "";
+  return sources.length ? stringValue(sources.at(-1)?.url ?? "") : "";
 }
 
 function objectPath(root: JsonValue, path: string[]) {

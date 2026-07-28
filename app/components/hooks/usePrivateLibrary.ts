@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import type { Dispatch, SetStateAction } from "react";
 import type { ActiveRun, Pack, SavedResult, User } from "../../../lib/types";
 import type { Translate } from "../../i18n/I18nContext";
 import { api } from "../../lib/api";
@@ -9,11 +10,12 @@ import type { EditablePack } from "../../types";
 type UsePrivateLibraryResult = {
   booting: boolean;
   user: User | null;
+  setUser: Dispatch<SetStateAction<User | null>>;
   packs: Pack[];
   results: SavedResult[];
   savedRuns: Record<string, ActiveRun>;
-  setResults: React.Dispatch<React.SetStateAction<SavedResult[]>>;
-  setSavedRuns: React.Dispatch<React.SetStateAction<Record<string, ActiveRun>>>;
+  setResults: Dispatch<SetStateAction<SavedResult[]>>;
+  setSavedRuns: Dispatch<SetStateAction<Record<string, ActiveRun>>>;
   login: (nickname: string, password: string) => Promise<void>;
   register: (nickname: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -156,6 +158,7 @@ export function usePrivateLibrary(
   return {
     booting,
     user,
+    setUser,
     packs,
     results,
     savedRuns,

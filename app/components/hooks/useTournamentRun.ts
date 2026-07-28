@@ -7,6 +7,7 @@ import {
   cloneSession,
   createRound,
   restore,
+  shuffle,
   snapshot,
 } from "../../domain/tournament";
 import type { Translate } from "../../i18n/I18nContext";
@@ -19,6 +20,7 @@ type UseTournamentRunOptions = {
   savedRuns: Record<string, ActiveRun>;
   setResults: Dispatch<SetStateAction<SavedResult[]>>;
   setSavedRuns: Dispatch<SetStateAction<Record<string, ActiveRun>>>;
+  onStart: () => void;
   onToast: (message: string) => void;
   t: Translate;
 };
@@ -30,6 +32,7 @@ export function useTournamentRun({
   savedRuns,
   setResults,
   setSavedRuns,
+  onStart,
   onToast,
   t,
 }: UseTournamentRunOptions) {
@@ -100,9 +103,8 @@ export function useTournamentRun({
             undoStack: [],
           };
     setModePack(pack);
-    setViewedResult(null);
+    onStart();
     setActiveRun(run);
-    setView("hill");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 

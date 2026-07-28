@@ -294,7 +294,7 @@ export function lockupThumbnailValue(image: JsonObject) {
     ? model.sources.filter(isObject)
     : [];
   return sources.length
-    ? stringValue(sources.at(-1)?.url).replace(/^\/\//, "https://")
+    ? stringValue(sources.at(-1)?.url ?? "").replace(/^\/\//, "https://")
     : "";
 }
 

@@ -46,6 +46,10 @@ export function MRankingApp() {
     savedRuns: library.savedRuns,
     setResults: library.setResults,
     setSavedRuns: library.setSavedRuns,
+    onStart: () => {
+      setViewedResult(null);
+      setView("hill");
+    },
     onToast: setToast,
     t,
   });
@@ -171,7 +175,7 @@ export function MRankingApp() {
           }
           onLogout={logout}
           onAvatar={(next) =>
-            setUser((current) =>
+            library.setUser((current) =>
               current ? { ...current, avatarUrl: next } : current,
             )
           }

@@ -213,7 +213,7 @@ function yandexCover(value: JsonValue, fallback: string) {
     uri = stringValue(value.uri);
     if (!uri && Array.isArray(value.itemsUri)) {
       uri = stringValue(
-        value.itemsUri.find((item) => typeof item === "string"),
+        value.itemsUri.find((item) => typeof item === "string") ?? "",
       );
     }
   }
