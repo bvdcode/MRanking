@@ -11,9 +11,9 @@
   .tournament-visual { margin-right: 2vw; grid-template-columns: 80px 1.35fr 40px 1fr 40px 115px; padding: 35px 18px; }
   .visual-final { width: 100px; }
   .page-wrap { padding-left: 30px; padding-right: 30px; }
-  .duel-board { grid-template-columns: minmax(410px,1fr) 70px minmax(410px,1fr); }
-  .track-choice { min-height: 540px; }
-  .track-media { height: 330px; }
+  .duel-board { width: 100%; grid-template-columns: minmax(0,1fr) 64px minmax(0,1fr); }
+  .track-choice { min-height: 560px; }
+  .track-media { height: 350px; }
 }
 
 /* Touch-first layouts for iOS, Android and small tablets. */
@@ -68,12 +68,11 @@
   .battle-topline > span:first-child { display: none; }
   .battle-topline > div { align-items: flex-start; }
   .round-meter { width: 100%; }
-  .duel-board { grid-template-columns: 1fr; gap: 18px; }
+  .duel-board { width: 100%; grid-template-columns: 1fr; gap: 18px; }
   .track-choice { width: min(100%,620px); min-height: 0; justify-self: center; }
   .track-media { height: clamp(260px,62vw,390px); }
   .duel-vs { min-height: 54px; flex-direction: row; justify-content: center; }
   .duel-vs span { width: 48px; height: 48px; font-size: 16px; box-shadow: 0 0 0 6px #0b0d0b; }
-  .choice-key { display: none; }
 
   .result-stage { grid-template-columns: 1fr 340px; gap: 36px; }
   .winner-copy h2 { font-size: 58px; }
@@ -195,14 +194,18 @@
   .battle-view { min-height: calc(100dvh - 112px - env(safe-area-inset-top)); padding: 68px 12px calc(50px + env(safe-area-inset-bottom)); }
   .battle-topline > span { max-width: 44vw; }
   .battle-title h2 { margin: 17px 0 14px; font-size: 27px; }
+  .battle-round-label { min-height: 31px; padding: 0 12px; font-size: 12px; }
+  .battle-pair-count { font-size: 18px; }
   .track-choice { padding: 7px; }
   .track-media { height: min(70vw,290px); }
   .track-info { min-height: 92px; }
   .track-info h3 { font-size: 18px; }
-  .choose-track { height: 58px; }
+  .track-info p { font-size: 10px; }
+  .choose-track { height: 54px; padding: 0 56px; font-size: 12px; }
+  .choose-track span { width: 50px; }
   .media-play-open { width: 72px; height: 72px; }
   .battle-controls { margin-top: 24px; }
-  .battle-controls button { min-height: 44px; }
+  .battle-controls button { min-width: 0; min-height: 50px; flex: 1; padding: 0 12px; font-size: 10px; }
 
   .result-stage { grid-template-columns: 1fr; gap: 50px; padding-bottom: 50px; }
   .winner-copy { min-width: 0; }
@@ -231,13 +234,13 @@
 }
 
 @media (min-width: 1025px) and (max-height: 820px) {
-  .battle-view { padding-top: 16px; }
+  .battle-view { padding-top: 12px; }
   .battle-title h2 { margin: 10px 0 8px; font-size: 34px; }
-  .track-choice { min-height: 440px; }
-  .track-media { height: 240px; }
-  .track-info { min-height: 92px; }
-  .choose-track { height: 58px; }
-  .battle-controls { margin-top: 24px; }
+  .track-choice { min-height: 520px; }
+  .track-media { height: 315px; }
+  .track-info { min-height: 96px; }
+  .choose-track { height: 56px; }
+  .battle-controls { margin-top: 18px; }
 }
 
 @media (hover: none) and (pointer: coarse) {

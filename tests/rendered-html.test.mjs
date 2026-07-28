@@ -165,6 +165,9 @@ test("client includes the private playlist-to-tournament flow", async () => {
   assert.match(source, /async function cancelRun\(pack: Pack\)/);
   assert.match(source, /DELETE FROM runs WHERE user_id = \? AND pack_id = \?/);
   assert.match(source, /media-play-close" : "media-play-open/);
+  assert.match(source, /const currentPair = Math\.min/);
+  assert.match(source, /\{currentPair\} \/ \{totalPairs\}/);
+  assert.doesNotMatch(source, /keyName="A"|className="choice-key"/);
   assert.match(kingLibrary, /className="pack-tile add-pack-tile"/);
   assert.match(kingLibrary, /onClick=\{onPacks\}/);
   assert.match(kingLibrary, /Add a pack/);
@@ -180,11 +183,9 @@ test("home keeps a clean primary hierarchy", async () => {
     ),
     readStyles(),
   ]);
-  assert.match(styles, /\.home-copy \.eyebrow \{ font-size: 13px/);
-  assert.match(styles, /\.home-flow \{[^}]*font-size: 11px/);
-  assert.match(styles, /\.button\.jumbo \{[^}]*font-size: 15px/);
-  assert.match(styles, /\.track-choice \{[^}]*border: 2px solid/);
-  assert.match(styles, /\.media-play-open \{[^}]*left: 50%; top: 50%/);
+  assert.match(styles, /\.duel-board \{[^}]*max-width: 1640px/);
+  assert.match(styles, /\.battle-controls button \{[^}]*min-height: 54px/);
+  assert.match(styles, /\.track-info p \{[^}]*font-size: 12px/);
   assert.doesNotMatch(home, /home-theses/);
   assert.doesNotMatch(styles, /\.home-theses/);
 });
@@ -198,7 +199,7 @@ test("mobile layout is touch-first and respects phone safe areas", async () => {
   assert.match(layout, /viewportFit: "cover"/);
   assert.match(styles, /@media \(max-width: 640px\)/);
   assert.match(styles, /env\(safe-area-inset-bottom\)/);
-  assert.match(styles, /\.duel-board \{ grid-template-columns: 1fr/);
+  assert.match(styles, /\.duel-board \{[^}]*grid-template-columns: 1fr/);
   assert.match(
     styles,
     /\.profile-playlist-grid \{ grid-template-columns: repeat\(2/,

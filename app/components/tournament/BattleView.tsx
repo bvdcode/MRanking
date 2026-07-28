@@ -30,12 +30,15 @@ export function BattleView({
   const right = pack.items.find(
     (item) => item.id === run.session.activePair[1],
   )!;
-  const decided =
-    run.session.roundWinners.length +
-    run.session.matches.filter((match) => match.round === run.session.round)
-      .length;
-  const total = Math.max(1, Math.ceil(run.session.roundStartCount / 2));
-  const progress = Math.min(100, (decided / total) * 100);
+  const completedPairs = run.session.matches.filter(
+    (match) => match.round === run.session.round,
+  ).length;
+  const totalPairs = Math.max(
+    1,
+    Math.ceil(run.session.roundStartCount / 2),
+  );
+  const currentPair = Math.min(totalPairs, completedPairs + 1);
+  const progress = Math.min(100, (currentPair / totalPairs) * 100);
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
       if (
@@ -60,16 +63,19 @@ export function BattleView({
       <div className="battle-topline">
         <span aria-hidden="true" />
         <div>
-          <span>{t("ROUND {count}", { count: run.session.round })}</span>
-          <b>
-            {run.session.roundStartCount} →{" "}
-            {Math.floor(run.session.roundStartCount / 2)}
+          <span className="battle-round-label">
+            {t("ROUND {count}", { count: run.session.round })}
+          </span>
+          <b className="battle-pair-count">
+            {currentPair} / {totalPairs}
           </b>
         </div>
         <span>{pack.name}</span>
       </div>
       <progress
-        aria-label={t("Full tournament bracket")}
+        aria-label={`${t("ROUND {count}", {
+          count: run.session.round,
+        })}: ${currentPair} / ${totalPairs}`}
         className="round-meter"
         max={100}
         value={progress}
@@ -81,7 +87,6 @@ export function BattleView({
         <TrackChoice
           item={left}
           sourceType={pack.sourceType}
-          keyName="A"
           playing={playing === left.id}
           onPlay={() => setPlaying(playing === left.id ? null : left.id)}
           onPick={() => {
@@ -102,7 +107,6 @@ export function BattleView({
         <TrackChoice
           item={right}
           sourceType={pack.sourceType}
-          keyName="B"
           playing={playing === right.id}
           onPlay={() => setPlaying(playing === right.id ? null : right.id)}
           onPick={() => {
@@ -112,10 +116,18 @@ export function BattleView({
         />
       </div>
       <div className="battle-controls">
-        <button disabled={!run.undoStack.length} onClick={onUndo}>
+        <button
+          className="battle-undo"
+          disabled={!run.undoStack.length}
+          onClick={onUndo}
+        >
+          <span aria-hidden="true">↶</span>
           {t("Undo")}
         </button>
-        <button onClick={onSkip}>{t("Skip pair")}</button>
+        <button className="battle-skip" onClick={onSkip}>
+          {t("Skip pair")}
+          <span aria-hidden="true">→</span>
+        </button>
       </div>
     </section>
   );
@@ -124,14 +136,12 @@ export function BattleView({
 function TrackChoice({
   item,
   sourceType,
-  keyName,
   playing,
   onPlay,
   onPick,
 }: {
   item: PackItem;
   sourceType: SourceType;
-  keyName: string;
   playing: boolean;
   onPlay: () => void;
   onPick: () => void;
@@ -139,7 +149,6 @@ function TrackChoice({
   const { t } = useI18n();
   return (
     <article className="track-choice">
-      <span className="choice-key">{keyName}</span>
       <div className="track-media">
         {playing ? (
           <iframe
