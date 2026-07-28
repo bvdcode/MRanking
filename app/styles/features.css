@@ -225,11 +225,11 @@ footer { height: 90px; border-top: 1px solid var(--line); padding: 0 48px; displ
 
 @keyframes nav-in { from { transform: scaleX(0); } }
 @keyframes menu-in { from { opacity: 0; transform: translateY(-6px); } }
-@keyframes studio-float { 50% { translate: 0 -8px; } }
-@keyframes studio-core-glow { 50% { box-shadow: 0 0 0 19px #caff3405,0 25px 62px #000d; } }
-@keyframes studio-orbit { to { transform: rotate(360deg); } }
-@keyframes studio-route { to { background-position: -200% 0; } }
-@keyframes studio-mode-breathe { 50% { border-color: #566151; } }
+@keyframes preview-choice { 0%,42%,58%,100% { border-color: #3e453e; transform: translateY(0); } 48%,52% { border-color: var(--acid); transform: translateY(-4px); } }
+@keyframes preview-disc { to { transform: rotate(360deg); } }
+@keyframes preview-wave { 50% { transform: scaleY(.55); opacity: .55; } }
+@keyframes preview-vs-pulse { 50% { box-shadow: 0 0 0 8px #caff340d; transform: scale(1.04); } }
+@keyframes preview-rank-shift { 50% { border-color: #4d5749; transform: translateX(3px); } }
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes loading-slide { 0% { transform: translateX(-110%); } 100% { transform: translateX(360%); } }
 @keyframes match-enter { from { opacity: 0; transform: scale(.965); } }

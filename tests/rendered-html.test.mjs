@@ -183,10 +183,10 @@ test("home keeps a clean primary hierarchy", async () => {
     ),
     readStyles(),
   ]);
-  assert.match(styles, /:lang\(en\) body \{ --font-display: var\(--font-body\)/);
-  assert.match(styles, /\.ranking-studio \{/);
-  assert.match(styles, /@keyframes studio-float/);
-  assert.match(home, /ONE PACK \/ MANY WAYS/);
+  assert.match(styles, /:lang\(en\) body \{ --font-display: var\(--font-impact\)/);
+  assert.match(styles, /\.choice-preview \{/);
+  assert.match(styles, /@keyframes preview-choice/);
+  assert.match(home, /preview-ranking/);
   assert.doesNotMatch(home, /TournamentVisual|LIVE BRACKET/);
 });
 
@@ -263,7 +263,7 @@ test("responsive layout prevents viewport and mobile overflow regressions", asyn
   assert.match(header, /className="profile-label"/);
   assert.match(responsive, /\.profile-chip > \.profile-label/);
   assert.doesNotMatch(responsive, /\.profile-chip > span/);
-  assert.match(responsive, /\.ranking-studio \{[^}]*display: flex/);
+  assert.match(responsive, /\.choice-preview \{[^}]*grid-template-rows/);
   assert.match(responsive, /\.winner-card \{[^}]*transform: none/);
   assert.match(
     responsive,

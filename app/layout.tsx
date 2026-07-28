@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Space_Grotesk, Syne } from "next/font/google";
+import { Anton, Space_Grotesk, Syne } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
 
@@ -11,6 +11,12 @@ const grotesk = Space_Grotesk({
 const syne = Syne({
   variable: "--font-display",
   subsets: ["latin"],
+});
+
+const anton = Anton({
+  variable: "--font-impact",
+  subsets: ["latin"],
+  weight: "400",
 });
 
 export const viewport: Viewport = {
@@ -53,7 +59,9 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body className={`${grotesk.variable} ${syne.variable}`}>{children}</body>
+      <body className={`${grotesk.variable} ${syne.variable} ${anton.variable}`}>
+        {children}
+      </body>
     </html>
   );
 }

@@ -23,7 +23,7 @@ export function HomeView({ onStart }: { onStart: () => void }) {
           <span>↗</span>
         </button>
       </div>
-      <RankingStudio />
+      <ChoicePreview />
       <div className="home-flow">
         <span>01 {t("UPLOAD")}</span>
         <i>→</i>
@@ -37,53 +37,55 @@ export function HomeView({ onStart }: { onStart: () => void }) {
   );
 }
 
-function RankingStudio() {
+function ChoicePreview() {
   const { t } = useI18n();
-  const modes = [
-    { icon: "VS", label: "Versus" },
-    { icon: "T", label: "Tier List" },
-    { icon: "★", label: "Score Everything" },
-    { icon: "?", label: "Blind Ranking" },
-  ];
   return (
     <div
-      className="ranking-studio"
-      aria-label={t("One pack, many ranking modes")}
+      className="choice-preview"
+      aria-label={t("Choose the one that stays")}
     >
-      <span className="studio-caption">{t("ONE PACK / MANY WAYS")}</span>
-      <div className="studio-input">
-        <div className="studio-media-stack" aria-hidden="true">
-          <i className="studio-media-card studio-media-one" />
-          <i className="studio-media-card studio-media-two" />
-          <i className="studio-media-card studio-media-three" />
-        </div>
-        <div className="studio-pack-core">
-          <small>{t("MY PACK")}</small>
-          <span>64</span>
-          <b>{t("ITEMS")}</b>
-        </div>
+      <header className="preview-head">
+        <span>{t("COMPARE")}</span>
+        <b>05 / 32</b>
+      </header>
+      <div className="preview-duel">
+        {["one", "two"].map((variant, index) => (
+          <article className={`preview-option preview-option-${variant}`} key={variant}>
+            <div className="preview-art" aria-hidden="true">
+              <span>0{index + 1}</span>
+              <i />
+              <i />
+              <i />
+              <i />
+            </div>
+            <div className="preview-track-lines" aria-hidden="true">
+              <b />
+              <i />
+            </div>
+            <div className="preview-pick">
+              <span>{t("Choose this")}</span>
+              <b>↗</b>
+            </div>
+          </article>
+        ))}
+        <div className="preview-vs" aria-hidden="true">VS</div>
       </div>
-      <div className="studio-switch" aria-hidden="true">
-        <i />
-        <span>+</span>
-        <i />
-      </div>
-      <div className="studio-modes">
-        {modes.map((mode, index) => (
-          <div
-            className={`studio-mode-card studio-mode-${index + 1}`}
-            key={mode.label}
-          >
-            <i>{mode.icon}</i>
-            <span>0{index + 1}</span>
-            <b>{t(mode.label)}</b>
+      <div className="preview-ranking">
+        <header>
+          <span>{t("Full ranking")}</span>
+          <b>{t("READY")}</b>
+        </header>
+        {[96, 84, 71].map((score, index) => (
+          <div className={`preview-rank-row preview-rank-${index + 1}`} key={score}>
+            <strong>0{index + 1}</strong>
+            <i aria-hidden="true" />
+            <span aria-hidden="true">
+              <b />
+              <small />
+            </span>
+            <em>{score}</em>
           </div>
         ))}
-      </div>
-      <div className="studio-status">
-        <span>{t("UPLOAD ONCE")}</span>
-        <b>{t("PLAY IT YOUR WAY")}</b>
-        <i>{t("READY")}</i>
       </div>
     </div>
   );
