@@ -18,7 +18,8 @@
     "drizzle-orm": "0.45.2",
     "next": "16.2.12",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "zustand": "5.0.14"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.47.0",
