@@ -20,7 +20,6 @@ type UseTournamentRunOptions = {
   savedRuns: Record<string, ActiveRun>;
   setResults: Dispatch<SetStateAction<SavedResult[]>>;
   setSavedRuns: Dispatch<SetStateAction<Record<string, ActiveRun>>>;
-  onStart: () => void;
   onToast: (message: string) => void;
   t: Translate;
 };
@@ -32,7 +31,6 @@ export function useTournamentRun({
   savedRuns,
   setResults,
   setSavedRuns,
-  onStart,
   onToast,
   t,
 }: UseTournamentRunOptions) {
@@ -103,9 +101,7 @@ export function useTournamentRun({
             undoStack: [],
           };
     setModePack(pack);
-    onStart();
     setActiveRun(run);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function chooseWinner(winnerId: string) {

@@ -25,7 +25,7 @@ const eslintConfig = defineConfig([
       "project/no-inline-styles": "error",
       "project/no-nested-assertions": "error",
       "project/no-unknown": "error",
-      "project/no-viewport-sizing": "error",
+      "project/no-full-viewport-width": "error",
     },
   },
   {
@@ -34,7 +34,7 @@ const eslintConfig = defineConfig([
     plugins: { css, project: projectRules },
     rules: {
       "project/max-source-lines": "error",
-      "project/no-viewport-sizing": "error",
+      "project/no-full-viewport-width": "error",
     },
   },
   globalIgnores([

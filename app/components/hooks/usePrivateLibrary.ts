@@ -10,7 +10,6 @@ import type { EditablePack } from "../../types";
 type UsePrivateLibraryResult = {
   booting: boolean;
   user: User | null;
-  setUser: Dispatch<SetStateAction<User | null>>;
   packs: Pack[];
   results: SavedResult[];
   savedRuns: Record<string, ActiveRun>;
@@ -19,6 +18,7 @@ type UsePrivateLibraryResult = {
   login: (nickname: string, password: string) => Promise<void>;
   register: (nickname: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateAvatar: (avatarUrl: string) => void;
   savePack: (draft: EditablePack) => Promise<Pack>;
   deletePack: (pack: Pack) => Promise<void>;
   deleteResult: (result: SavedResult) => Promise<boolean>;
@@ -93,6 +93,10 @@ export function usePrivateLibrary(
     setSavedRuns({});
   }
 
+  function updateAvatar(avatarUrl: string): void {
+    setUser((current) => (current ? { ...current, avatarUrl } : current));
+  }
+
   async function savePack(draft: EditablePack): Promise<Pack> {
     const normalizedDraft = {
       ...draft,
@@ -158,7 +162,6 @@ export function usePrivateLibrary(
   return {
     booting,
     user,
-    setUser,
     packs,
     results,
     savedRuns,
@@ -167,6 +170,7 @@ export function usePrivateLibrary(
     login,
     register,
     logout,
+    updateAvatar,
     savePack,
     deletePack,
     deleteResult,

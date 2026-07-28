@@ -193,6 +193,68 @@ test("mobile layout is touch-first and respects phone safe areas", async () => {
   assert.match(client, /width=\{boardWidth \* fitScale\}/);
 });
 
+test("tournament state stays independent from application navigation", async () => {
+  const [application, tournament, tournamentDomain, library] =
+    await Promise.all([
+      readFile(
+        new URL("../app/components/MRankingApp.tsx", import.meta.url),
+        "utf8",
+      ),
+      readFile(
+        new URL(
+          "../app/components/hooks/useTournamentRun.ts",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+      readFile(
+        new URL("../app/domain/tournament.ts", import.meta.url),
+        "utf8",
+      ),
+      readFile(
+        new URL(
+          "../app/components/hooks/usePrivateLibrary.ts",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+    ]);
+
+  assert.doesNotMatch(tournament, /\bsetView\(|\bsetViewedResult\(/);
+  assert.match(tournament, /\bshuffle,/);
+  assert.match(tournamentDomain, /export function shuffle/);
+  assert.match(application, /function startTournament\(pack: Pack/);
+  assert.match(application, /activeRunStatus === "complete"/);
+  assert.match(application, /onAvatar=\{updateAvatar\}/);
+  assert.doesNotMatch(application, /\bsetUser\(/);
+  assert.match(library, /function updateAvatar\(avatarUrl: string\)/);
+});
+
+test("responsive layout prevents viewport and mobile overflow regressions", async () => {
+  const [header, base, responsive] = await Promise.all([
+    readFile(
+      new URL("../app/components/layout/Header.tsx", import.meta.url),
+      "utf8",
+    ),
+    readFile(new URL("../app/styles/base.css", import.meta.url), "utf8"),
+    readFile(new URL("../app/styles/responsive.css", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(base, /html \{ min-height: 100dvh/);
+  assert.match(base, /\.app-shell \{ min-height: 100dvh/);
+  assert.match(base, /\.flow-back \{ position: absolute/);
+  assert.match(responsive, /@media \(max-width: 1024px\)/);
+  assert.match(header, /className="profile-label"/);
+  assert.match(responsive, /\.profile-chip > \.profile-label/);
+  assert.doesNotMatch(responsive, /\.profile-chip > span/);
+  assert.match(responsive, /\.visual-final \{[^}]*transform: none/);
+  assert.match(responsive, /\.winner-card \{[^}]*transform: none/);
+  assert.match(
+    responsive,
+    /@media \(min-width: 1025px\) and \(max-height: 820px\)/,
+  );
+});
+
 test("profile playlist picker keeps artwork square and titles readable", async () => {
   const styles = await readStyles();
   assert.match(styles, /\.profile-playlist-art \{[^}]*aspect-ratio: 1 \/ 1/);
