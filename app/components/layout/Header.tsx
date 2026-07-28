@@ -42,17 +42,24 @@ export function Header({
       <Logo onClick={onHome} />
       <nav className="main-nav" aria-label={t("Main navigation")}>
         <button
+          className={view === "upload" ? "active" : ""}
+          onClick={() => onNavigate("upload")}
+        >
+          <span>01</span>
+          {t("Upload pack")}
+        </button>
+        <button
           className={view === "packs" ? "active" : ""}
           onClick={() => onNavigate("packs")}
         >
-          <span>01</span>
-          {t("Packs")}
+          <span>02</span>
+          {t("Your packs")}
         </button>
         <button
           className={view === "modes" || view === "hill" ? "active" : ""}
           onClick={() => onNavigate("modes")}
         >
-          <span>02</span>
+          <span>03</span>
           {t("Modes")}
         </button>
       </nav>

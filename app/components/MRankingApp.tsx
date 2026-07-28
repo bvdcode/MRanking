@@ -92,6 +92,11 @@ export function MRankingApp() {
       setLoginOpen(true);
       return;
     }
+    setActiveRun(null);
+    setModePack(null);
+    if (next === "upload") {
+      setEditable(null);
+    }
     setViewedResult(null);
     setView(next);
     scrollToPageTop();
@@ -203,30 +208,57 @@ export function MRankingApp() {
         {view === "home" && (
           <HomeView onStart={() => protectedNavigate("modes")} />
         )}
+        {view === "upload" && user && (
+          <UploadView
+            key={editable?.id ?? "pack-uploader"}
+            editable={editable}
+            onEditable={setEditable}
+            onSave={savePack}
+            onBack={() => {
+              setEditable(null);
+              setView(editable ? "packs" : "home");
+              scrollToPageTop();
+            }}
+          />
+        )}
         {view === "packs" && user && (
-          <>
-            <UploadView
-              key={editable?.id ?? "pack-uploader"}
-              editable={editable}
-              onEditable={setEditable}
-              onSave={savePack}
-              onBack={goHome}
-            />
-            <PackLibraryView
-              packs={packs}
-              onEdit={(pack) => {
-                setEditable(packToEditable(pack));
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              }}
-              onDelete={deletePack}
-              onExport={exportPack}
-            />
-          </>
+          <PackLibraryView
+            packs={packs}
+            onAdd={() => {
+              setEditable(null);
+              setView("upload");
+              scrollToPageTop();
+            }}
+            onPlay={(pack) => {
+              setModePack(pack);
+              setView("modes");
+              scrollToPageTop();
+            }}
+            onEdit={(pack) => {
+              setEditable(packToEditable(pack));
+              setView("upload");
+              scrollToPageTop();
+            }}
+            onDelete={deletePack}
+            onExport={exportPack}
+          />
         )}
         {view === "modes" && user && (
           <ModeView
-            onBack={goHome}
+            selectedPack={selectedPack}
+            onBack={() => {
+              if (selectedPack) {
+                setModePack(null);
+                setView("packs");
+              } else {
+                goHome();
+              }
+            }}
             onKing={() => {
+              if (selectedPack) {
+                startTournament(selectedPack);
+                return;
+              }
               setActiveRun(null);
               setModePack(null);
               setView("hill");
@@ -264,7 +296,7 @@ export function MRankingApp() {
             onBack={() => setView("modes")}
             onPacks={() => {
               setEditable(null);
-              protectedNavigate("packs");
+              protectedNavigate("upload");
             }}
             onStart={(pack) => startTournament(pack)}
             onContinue={(pack) => startTournament(pack, true)}

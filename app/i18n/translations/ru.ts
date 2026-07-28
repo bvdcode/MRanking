@@ -199,6 +199,14 @@ export const RU_TRANSLATIONS: Record<string, string> = {
     "YOUR LIBRARY": "ТВОЯ БИБЛИОТЕКА",
     PLAYOFF: "ПЛЕЙ-ОФФ",
     "Tournament bracket": "Турнирная сетка",
+    "SELECTED PACK": "ВЫБРАННЫЙ ПАК",
+    "Explore the tournament round by round.":
+      "Исследуй турнир раунд за раундом.",
+    "Large tournaments stay readable without shrinking every battle.":
+      "Большие турниры остаются читаемыми без уменьшения каждого боя.",
+    "Choose a round": "Выбрать раунд",
+    "Previous page": "Предыдущая страница",
+    "Next page": "Следующая страница",
     "Every battle leads to one champion.":
       "Каждая битва ведёт к одному чемпиону.",
     "Follow every winner through an unbroken path to the final.":

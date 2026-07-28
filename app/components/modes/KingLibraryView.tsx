@@ -49,7 +49,7 @@ export function KingLibraryView({
           <h3>{t("No packs yet")}</h3>
           <p>{t("Upload a pack before starting a mode.")}</p>
           <button className="button primary" onClick={onPacks}>
-            {t("Go to packs")}
+            {t("Upload pack")}
           </button>
         </div>
       ) : (

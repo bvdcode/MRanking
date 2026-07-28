@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Pack, PackItem, Session } from "../../../lib/types";
 import { useI18n } from "../../i18n/I18nContext";
 import { RemoteImage } from "../shared/RemoteImage";
+import { TournamentRoundExplorer } from "./TournamentRoundExplorer";
 
 type BracketGraphNode = {
   match: Session["matches"][number];
@@ -13,6 +14,19 @@ type BracketGraphNode = {
 };
 
 export function TournamentBracket({
+  pack,
+  session,
+}: {
+  pack: Pack;
+  session: Session;
+}) {
+  if (session.matches.length > 31) {
+    return <TournamentRoundExplorer pack={pack} session={session} />;
+  }
+  return <ConnectedTournamentBracket pack={pack} session={session} />;
+}
+
+function ConnectedTournamentBracket({
   pack,
   session,
 }: {

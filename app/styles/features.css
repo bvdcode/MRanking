@@ -15,7 +15,7 @@
 .pack-tile { border: 1px solid var(--line); background: #101210; transition: transform .22s ease, border-color .22s ease; }
 .pack-tile:hover { transform: translateY(-5px); border-color: #515852; }
 .pack-art { width: 100%; height: 250px; border: 0; padding: 0; position: relative; display: block; overflow: hidden; background: #1a1d1a; cursor: pointer; }
-.library-view:not(.king-library-view) .pack-art { cursor: default; }
+.library-view .pack-art { cursor: pointer; }
 .pack-art > img, .pack-art > .emoji-pack-cover { width: 100%; height: 100%; object-fit: cover; }
 .pack-play-overlay { position: absolute; left: 0; right: 0; bottom: 0; height: 50px; transform: translateY(100%); transition: transform .2s ease; background: var(--acid); color: var(--ink); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; font-size: 8px; letter-spacing: .12em; font-weight: 900; }
 .pack-art:hover .pack-play-overlay { transform: translateY(0); }
@@ -196,6 +196,29 @@
 .bracket-champion-card { width: 100%; height: 100%; min-height: 264px; }
 .bracket-champion-card::before { display: none; }
 .bracket-champion-card > img { height: 146px; }
+.bracket-explorer-section { max-width: 1480px; margin-left: auto; margin-right: auto; }
+.round-explorer { border: 1px solid #343a35; background: #0d0f0d; }
+.round-road { min-height: 92px; overflow-x: auto; display: flex; align-items: stretch; padding: 10px; background: #101310; scrollbar-width: thin; scrollbar-color: var(--acid) #1b1e1b; }
+.round-road button { min-width: 158px; position: relative; border: 1px solid #343a35; background: #151815; color: #858d86; padding: 14px 34px 14px 16px; display: flex; flex-direction: column; justify-content: center; gap: 6px; text-align: left; text-transform: uppercase; cursor: pointer; transition: border-color .18s ease,background .18s ease,color .18s ease; scroll-snap-align: start; }
+.round-road button:not(:last-child) { margin-right: 28px; }
+.round-road button:not(:last-child)::after { content: "→"; position: absolute; left: calc(100% + 8px); top: 50%; translate: 0 -50%; color: #5e675f; font-size: 15px; }
+.round-road button:hover, .round-road button.active { border-color: var(--acid); color: var(--paper); background: #1a2117; }
+.round-road button.active { box-shadow: inset 0 -3px var(--acid); }
+.round-road button span { font: 800 15px var(--font-display); }
+.round-road button small { font-size: 7px; letter-spacing: .1em; }
+.round-road .round-road-final { min-width: 142px; border-color: #596c25; color: var(--acid); }
+.round-explorer-toolbar { min-height: 76px; border-top: 1px solid #343a35; border-bottom: 1px solid #343a35; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.round-explorer-toolbar > div:first-child { display: flex; flex-direction: column; gap: 5px; }
+.round-explorer-toolbar > div:first-child span { color: var(--paper); font: 800 18px var(--font-display); }
+.round-explorer-toolbar > div:first-child b { color: var(--muted); font-size: 8px; letter-spacing: .1em; }
+.round-page-controls { display: flex; align-items: center; gap: 9px; }
+.round-page-controls button { width: 44px; height: 42px; border: 1px solid #414842; background: #171a17; color: var(--paper); font-size: 18px; cursor: pointer; }
+.round-page-controls button:hover:not(:disabled) { border-color: var(--acid); color: var(--acid); }
+.round-page-controls button:disabled { opacity: .3; cursor: default; }
+.round-page-controls span { min-width: 58px; color: #a2a8a3; text-align: center; font-size: 9px; letter-spacing: .08em; }
+.round-match-grid { padding: 20px; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; background-image: linear-gradient(#2d332d24 1px,transparent 1px),linear-gradient(90deg,#2d332d24 1px,transparent 1px); background-size: 52px 52px; }
+.bracket-explorer-match { width: 100%; height: auto; min-height: 194px; }
+.bracket-explorer-match .bracket-track { min-height: 67px; }
 .ranking-panel { max-width: 850px; margin: 65px auto 0; border: 1px solid var(--line); background: #0e100f; padding: 24px; }
 .rank-row { min-height: 65px; display: grid; grid-template-columns: 40px 86px 1fr 25px; align-items: center; gap: 12px; border-bottom: 1px solid #292e2a; padding: 7px; }
 .rank-row.winner { background: #1a2113; }

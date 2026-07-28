@@ -23,6 +23,7 @@ const applicationSources = [
   "../app/components/tournament/BattleView.tsx",
   "../app/components/tournament/ResultView.tsx",
   "../app/components/tournament/TournamentBracket.tsx",
+  "../app/components/tournament/TournamentRoundExplorer.tsx",
   "../app/domain/pack.ts",
   "../app/domain/tournament.ts",
   "../app/i18n/translations/ru.ts",
@@ -84,12 +85,11 @@ test("ships the redesigned application shell", async () => {
 test("client includes the private playlist-to-tournament flow", async () => {
   const source = await readApplicationSource();
 
-  assert.match(source, /type View = "home" \| "packs" \| "modes" \| "hill"/);
+  assert.match(source, /type View = "home" \| "upload" \| "packs" \| "modes" \| "hill"/);
   assert.match(source, /Create account/);
   assert.match(source, /onRegister/);
   assert.doesNotMatch(source, /AdminView|onAdmin|\/api\/admin/);
-  assert.match(source, /onNavigate\("packs"\)/);
-  assert.match(source, /onNavigate\("modes"\)/);
+  assert.match(source, /onNavigate\("upload"\)/);
   assert.match(source, /King of the Hill/);
   assert.match(source, /YouTube Playlist/);
   assert.match(source, /YouTube Music/);
@@ -138,21 +138,20 @@ test("client includes the private playlist-to-tournament flow", async () => {
   assert.match(source, /undoStack/);
   assert.match(source, /function reshuffle\(\)/);
   assert.match(source, /Full ranking/);
-  assert.match(source, /function TournamentBracket/);
+  assert.match(source, /function TournamentRoundExplorer/);
+  assert.match(source, /const pageSize = 8/);
   assert.match(source, /className="result-history-card"/);
   assert.match(source, /onOpenResult/);
   assert.match(source, /onDeleteResult/);
   assert.match(source, /className="result-history-delete"/);
   assert.match(source, /Delete history/);
-  assert.match(source, /Tier List/);
-  assert.match(source, /Blind Ranking/);
   assert.match(source, /Reshuffle pair/);
   const packLibrary = await readFile(
     new URL("../app/components/packs/PackLibraryView.tsx", import.meta.url),
     "utf8",
   );
-  assert.match(packLibrary, /onEdit/);
-  assert.match(packLibrary, /onDelete/);
+  assert.match(packLibrary, /onAdd/);
+  assert.match(packLibrary, /onPlay/);
   assert.doesNotMatch(packLibrary, /onStart|onContinue|PLAY NOW/);
   const kingLibrary = await readFile(
     new URL("../app/components/modes/KingLibraryView.tsx", import.meta.url),

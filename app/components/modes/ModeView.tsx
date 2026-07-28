@@ -1,6 +1,8 @@
 "use client";
 
+import type { Pack } from "../../../lib/types";
 import { useI18n } from "../../i18n/I18nContext";
+import { PackCover } from "../packs/PackCard";
 import { FlowBack } from "../shared/FlowBack";
 
 const MODES = [
@@ -49,9 +51,11 @@ const MODES = [
 ];
 
 export function ModeView({
+  selectedPack,
   onBack,
   onKing,
 }: {
+  selectedPack: Pack | null;
   onBack: () => void;
   onKing: () => void;
 }) {
@@ -62,11 +66,21 @@ export function ModeView({
       <div className="page-heading">
         <div>
           <div className="eyebrow">
-            <span>●</span>02 / {t("FORMAT")}
+            <span>●</span>03 / {t("FORMAT")}
           </div>
           <h2>{t("Choose a mode")}</h2>
         </div>
       </div>
+      {selectedPack && (
+        <div className="selected-pack-strip">
+          <PackCover pack={selectedPack} />
+          <div>
+            <span>{t("SELECTED PACK")}</span>
+            <b>{selectedPack.name}</b>
+            <small>{selectedPack.itemCount} {t("ITEMS")}</small>
+          </div>
+        </div>
+      )}
       <div className="mode-grid">
         {MODES.map((mode, index) => (
           <button

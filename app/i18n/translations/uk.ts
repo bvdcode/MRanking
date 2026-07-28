@@ -197,6 +197,14 @@ export const UK_TRANSLATIONS: Record<string, string> = {
     "YOUR LIBRARY": "ТВОЯ БІБЛІОТЕКА",
     PLAYOFF: "ПЛЕЙ-ОФФ",
     "Tournament bracket": "Турнірна сітка",
+    "SELECTED PACK": "ОБРАНИЙ ПАК",
+    "Explore the tournament round by round.":
+      "Досліджуй турнір раунд за раундом.",
+    "Large tournaments stay readable without shrinking every battle.":
+      "Великі турніри залишаються читабельними без зменшення кожного бою.",
+    "Choose a round": "Обрати раунд",
+    "Previous page": "Попередня сторінка",
+    "Next page": "Наступна сторінка",
     "Every battle leads to one champion.":
       "Кожна битва веде до одного чемпіона.",
     "Follow every winner through an unbroken path to the final.":

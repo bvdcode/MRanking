@@ -5,6 +5,7 @@
 @media (max-width: 1250px) {
   body { min-width: 1000px; }
   .topbar { padding: 0 28px; grid-template-columns: 220px 1fr 220px; }
+  .main-nav button { padding-left: 16px; padding-right: 16px; }
   .new-home { grid-template-columns: minmax(360px,.78fr) minmax(500px,1.22fr); column-gap: 24px; padding-left: 4vw; padding-right: 2vw; }
   .home-copy h1 { font-size: 68px; }
   .choice-preview { min-height: 580px; padding: 0 20px 20px; grid-template-rows: 50px minmax(290px,1fr) 188px; }
@@ -76,6 +77,8 @@
   .winner-copy h2 { font-size: 58px; }
   .bracket-heading { padding: 0 22px; }
   .bracket-fit { overflow-x: auto; overflow-y: hidden; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; }
+  .round-road { scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; }
+  .round-match-grid { grid-template-columns: 1fr; }
   .ranking-panel { margin-top: 45px; }
 
   .login-modal { max-width: calc(100% - 40px); }
@@ -91,7 +94,7 @@
   .profile-chip { width: 44px; height: 44px; padding: 5px; border: 0; background: transparent; }
   .profile-chip > .profile-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   .avatar { width: 34px; height: 34px; }
-  .main-nav { width: calc(100% + 28px); margin-left: -14px; grid-column: 1 / -1; grid-row: 2; display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line); }
+  .main-nav { width: calc(100% + 28px); margin-left: -14px; grid-column: 1 / -1; grid-row: 2; display: grid; grid-template-columns: repeat(3,1fr); border-top: 1px solid var(--line); }
   .main-nav button { min-height: 44px; padding: 0 12px; font-size: 10px; }
   .main-nav button + button { border-left: 1px solid var(--line); }
   .main-nav button.active::after { left: 12px; right: 12px; bottom: 0; }
@@ -217,6 +220,12 @@
   .bracket-summary { margin-top: 18px; }
   .bracket-summary span { flex: 1; min-width: 0; min-height: 66px; }
   .bracket-fit { cursor: grab; }
+  .round-road { min-height: 82px; padding: 7px; }
+  .round-road button { min-width: 135px; padding: 11px 28px 11px 12px; }
+  .round-road button span { font-size: 13px; }
+  .round-explorer-toolbar { min-height: 68px; padding: 10px; }
+  .round-match-grid { padding: 10px; gap: 10px; }
+  .bracket-explorer-match { min-height: 188px; }
   .ranking-panel { padding: 13px; }
   .rank-row { grid-template-columns: 30px 62px minmax(0,1fr) 20px; gap: 8px; }
   .rank-row > img { width: 62px; height: 48px; }

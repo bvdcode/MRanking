@@ -275,4 +275,5 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .selected-pack-strip > div { display: flex; flex-direction: column; gap: 7px; }
 .selected-pack-strip span { color: var(--acid); font-size: 8px; letter-spacing: .13em; }
 .selected-pack-strip b { font: 800 25px var(--font-display); text-transform: uppercase; }
+.selected-pack-strip small { color: var(--muted); font-size: 9px; text-transform: uppercase; letter-spacing: .08em; }
 .emoji-pack-cover { background: radial-gradient(circle,#d8ff6a,#536b13); display: grid; place-items: center; font-size: 70px; }
