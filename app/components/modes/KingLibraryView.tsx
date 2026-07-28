@@ -3,7 +3,7 @@
 import type { ActiveRun, Pack, SavedResult } from "../../../lib/types";
 import { isYouTubeSource, sourceName } from "../../domain/pack";
 import { useI18n } from "../../i18n/I18nContext";
-import { PackCover } from "../packs/PackCard";
+import { PackCover, PackTypeBadge } from "../packs/PackCard";
 import { FlowBack } from "../shared/FlowBack";
 import { RemoteImage } from "../shared/RemoteImage";
 
@@ -71,6 +71,7 @@ export function KingLibraryView({
                 }
               >
                 <PackCover pack={pack} />
+                <PackTypeBadge />
                 <div className="pack-play-overlay">
                   <span>{t(runs[pack.id] ? "Continue" : "PLAY NOW")}</span>
                   <b>↗</b>

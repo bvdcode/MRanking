@@ -3,7 +3,7 @@
 import type { Pack } from "../../../lib/types";
 import { isYouTubeSource, sourceName } from "../../domain/pack";
 import { useI18n } from "../../i18n/I18nContext";
-import { PackCover } from "./PackCard";
+import { PackCover, PackTypeBadge } from "./PackCard";
 
 export function PackLibraryView({
   packs,
@@ -43,6 +43,7 @@ export function PackLibraryView({
           <article className="pack-tile" key={pack.id}>
             <button className="pack-art" onClick={() => onPlay(pack)}>
               <PackCover pack={pack} />
+              <PackTypeBadge />
               <div className="pack-play-overlay">
                 <span>{t("Choose a mode")}</span>
                 <b>↗</b>

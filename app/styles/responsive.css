@@ -186,8 +186,12 @@
   .pack-art { height: auto; aspect-ratio: 16 / 10; }
   .add-pack-tile { min-height: 280px; }
   .pack-play-overlay { transform: none; }
-  .pack-actions { gap: 18px; flex-wrap: wrap; }
-  .pack-actions button { min-height: 34px; font-size: 9px; }
+  .pack-type-badge { min-height: 34px; top: 9px; left: 9px; padding: 0 10px; }
+  .pack-type-badge i { font-size: 17px; }
+  .pack-type-badge b { font-size: 9px; }
+  .pack-meta, .pack-owner { font-size: 9px; }
+  .pack-actions { gap: 6px; }
+  .pack-actions button { min-height: 44px; padding: 0 7px; font-size: 11px; }
   .crown-row { grid-template-columns: 1fr 1fr; }
   .result-history-open { grid-template-columns: 108px minmax(0,1fr); }
 

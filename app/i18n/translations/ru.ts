@@ -197,6 +197,7 @@ export const RU_TRANSLATIONS: Record<string, string> = {
     READY: "ГОТОВО",
     FORMAT: "ФОРМАТ",
     "YOUR LIBRARY": "ТВОЯ БИБЛИОТЕКА",
+    MUSIC: "МУЗЫКА",
     PLAYOFF: "ПЛЕЙ-ОФФ",
     "Tournament bracket": "Турнирная сетка",
     "SELECTED PACK": "ВЫБРАННЫЙ ПАК",

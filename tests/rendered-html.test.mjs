@@ -152,7 +152,7 @@ test("client includes the private playlist-to-tournament flow", async () => {
   );
   assert.match(packLibrary, /onAdd/);
   assert.match(packLibrary, /onPlay/);
-  assert.doesNotMatch(packLibrary, /onStart|onContinue|PLAY NOW/);
+  assert.match(packLibrary, /PackTypeBadge/);
   const kingLibrary = await readFile(
     new URL("../app/components/modes/KingLibraryView.tsx", import.meta.url),
     "utf8",
