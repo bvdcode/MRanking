@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { Pack, SavedResult } from "../../lib/types";
+import type { SavedResult } from "../../lib/types";
 import { exportPack, packToEditable } from "../domain/pack";
 import { I18nContext, translate } from "../i18n/I18nContext";
 import { usePreferencesStore } from "../state/preferences";

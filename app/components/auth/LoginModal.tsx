@@ -25,8 +25,11 @@ export function LoginModal({
     setBusy(true);
     setError("");
     try {
-      if (mode === "register") await onRegister(nickname, password);
-      else await onLogin(nickname, password);
+      if (mode === "register") {
+        await onRegister(nickname, password);
+      } else {
+        await onLogin(nickname, password);
+      }
     } catch (nextError) {
       setError(t((nextError as Error).message));
     } finally {
@@ -41,7 +44,11 @@ export function LoginModal({
         </button>
         <LogoMark />
         <span className="modal-kicker">{t("YOUR PROFILE")}</span>
-        <h2>{t(mode === "register" ? "Create your profile" : "Sign in to continue")}</h2>
+        <h2>
+          {t(
+            mode === "register" ? "Create your profile" : "Sign in to continue",
+          )}
+        </h2>
         <label className="field">
           <span>{t("Nickname")}</span>
           <input
@@ -60,7 +67,9 @@ export function LoginModal({
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            autoComplete={mode === "register" ? "new-password" : "current-password"}
+            autoComplete={
+              mode === "register" ? "new-password" : "current-password"
+            }
             minLength={6}
             maxLength={128}
             required
@@ -75,11 +84,15 @@ export function LoginModal({
           className="auth-mode-switch"
           type="button"
           onClick={() => {
-            setMode((current) => current === "login" ? "register" : "login");
+            setMode((current) => (current === "login" ? "register" : "login"));
             setError("");
           }}
         >
-          {t(mode === "register" ? "Already have an account? Sign in" : "New here? Create account")}
+          {t(
+            mode === "register"
+              ? "Already have an account? Sign in"
+              : "New here? Create account",
+          )}
         </button>
       </form>
     </div>

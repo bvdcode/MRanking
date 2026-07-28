@@ -2,7 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
-import type { YouTubeImportResult, YouTubeProfilePreview } from "../../../lib/types";
+import type {
+  YouTubeImportResult,
+  YouTubeProfilePreview,
+} from "../../../lib/types";
 import { useI18n } from "../../i18n/I18nContext";
 import { api } from "../../lib/api";
 import type { EditablePack } from "../../types";
@@ -55,7 +58,9 @@ export function UploadView({
   }, []);
 
   useEffect(() => {
-    if (!isEditing) return;
+    if (!isEditing) {
+      return;
+    }
     const frame = window.requestAnimationFrame(() => {
       window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     });
@@ -80,12 +85,16 @@ export function UploadView({
         body: JSON.stringify({ url: nextUrl }),
         signal: requestController.signal,
       });
-      if (!mounted.current || controller.current !== requestController) return;
+      if (!mounted.current || controller.current !== requestController) {
+        return;
+      }
       if (data.kind === "profile") {
         setProfile(data.profile);
         return;
       }
-      if (!preserveProfile) setProfile(null);
+      if (!preserveProfile) {
+        setProfile(null);
+      }
       onEditable({
         name: data.playlist.title,
         sourceType: data.playlist.sourceType,
@@ -103,8 +112,9 @@ export function UploadView({
         mounted.current &&
         controller.current === requestController &&
         (nextError as Error).name !== "AbortError"
-      )
+      ) {
         setError((nextError as Error).message);
+      }
     } finally {
       if (mounted.current && controller.current === requestController) {
         controller.current = null;
@@ -124,9 +134,12 @@ export function UploadView({
       : source === "yandex"
         ? "Yandex Music"
         : "YouTube / YouTube Music";
-  const serviceIcon = source === "spotify" ? "●" : source === "yandex" ? "Я" : "▶";
+  const serviceIcon =
+    source === "spotify" ? "●" : source === "yandex" ? "Я" : "▶";
   const servicePrompt =
-    source === "youtube" ? "Paste playlist or profile link" : "Paste playlist link";
+    source === "youtube"
+      ? "Paste playlist or profile link"
+      : "Paste playlist link";
   const serviceCopy =
     source === "spotify"
       ? "Use a public Spotify playlist."
@@ -140,7 +153,7 @@ export function UploadView({
         ? "https://music.yandex.ru/users/.../playlists/..."
         : "https://youtube.com/@profile or https://music.youtube.com/@profile";
 
-  if (editable)
+  if (editable) {
     return (
       <PackEditor
         value={editable}
@@ -186,6 +199,7 @@ export function UploadView({
         error={error}
       />
     );
+  }
 
   return (
     <section className="page-wrap upload-view">

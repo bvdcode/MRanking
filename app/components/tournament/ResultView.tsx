@@ -90,7 +90,9 @@ export function ResultView({
         </div>
         {rankingIds.map((id, index) => {
           const item = pack.items.find((entry) => entry.id === id);
-          if (!item) return null;
+          if (!item) {
+            return null;
+          }
           return (
             <div className={`rank-row ${index === 0 ? "winner" : ""}`} key={id}>
               <span>{String(index + 1).padStart(2, "0")}</span>

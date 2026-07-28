@@ -18,10 +18,13 @@ export function createRound(
   const shuffled = shuffle(ids);
   const carryId = shuffled.length % 2 === 1 ? (shuffled.pop() ?? null) : null;
   const pairs: [string, string][] = [];
-  for (let index = 0; index < shuffled.length; index += 2)
+  for (let index = 0; index < shuffled.length; index += 2) {
     pairs.push([shuffled[index], shuffled[index + 1]]);
+  }
   const activePair = pairs.shift();
-  if (!activePair) throw new Error("A round needs at least two items");
+  if (!activePair) {
+    throw new Error("A round needs at least two items");
+  }
   return {
     id: base?.id ?? `run-${crypto.randomUUID()}`,
     packId,

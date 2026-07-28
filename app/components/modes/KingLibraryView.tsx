@@ -56,7 +56,9 @@ export function KingLibraryView({
       ) : (
         <div className="pack-grid mode-pack-grid">
           <button className="pack-tile add-pack-tile" onClick={onPacks}>
-            <span className="add-pack-plus" aria-hidden="true">+</span>
+            <span className="add-pack-plus" aria-hidden="true">
+              +
+            </span>
             <strong>{t("Add a pack")}</strong>
             <small>{t("Upload or import a new pack.")}</small>
             <b aria-hidden="true">↗</b>
@@ -123,7 +125,9 @@ export function KingLibraryView({
               const champion = pack?.items.find(
                 (item) => item.id === result.championItemId,
               );
-              if (!pack || !champion) return null;
+              if (!pack || !champion) {
+                return null;
+              }
               return (
                 <article className="result-history-card" key={result.id}>
                   <button

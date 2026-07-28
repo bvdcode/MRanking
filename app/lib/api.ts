@@ -11,6 +11,8 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const data = (await response.json().catch(() => ({}))) as T & {
     error?: string;
   };
-  if (!response.ok) throw new Error(data.error || "Something went wrong");
+  if (!response.ok) {
+    throw new Error(data.error || "Something went wrong");
+  }
   return data;
 }

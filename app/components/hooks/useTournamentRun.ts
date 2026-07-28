@@ -3,7 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import type { ActiveRun, Pack, SavedResult, User } from "../../../lib/types";
-import { cloneSession, createRound, restore, snapshot } from "../../domain/tournament";
+import {
+  cloneSession,
+  createRound,
+  restore,
+  snapshot,
+} from "../../domain/tournament";
 import type { Translate } from "../../i18n/I18nContext";
 import { api } from "../../lib/api";
 
@@ -77,7 +82,9 @@ export function useTournamentRun({
         onToast(t("Result saved"));
       })
       .catch((error) => {
-        onToast(error instanceof Error ? error.message : t("Something went wrong"));
+        onToast(
+          error instanceof Error ? error.message : t("Something went wrong"),
+        );
       });
   }, [activeRun, onToast, results, setResults, setSavedRuns, t]);
 
@@ -101,7 +108,9 @@ export function useTournamentRun({
 
   function chooseWinner(winnerId: string) {
     setActiveRun((run) => {
-      if (!run || run.session.status !== "active") return run;
+      if (!run || run.session.status !== "active") {
+        return run;
+      }
       const previous = snapshot(run.session);
       const session = cloneSession(run.session);
       const [first, second] = session.activePair;
@@ -170,8 +179,9 @@ export function useTournamentRun({
 
   function undo() {
     setActiveRun((run) => {
-      if (!run || !run.undoStack.length || run.session.status === "complete")
+      if (!run || !run.undoStack.length || run.session.status === "complete") {
         return run;
+      }
       const stack = [...run.undoStack];
       return { session: restore(run.session, stack.pop()!), undoStack: stack };
     });
@@ -179,11 +189,13 @@ export function useTournamentRun({
 
   function skip() {
     setActiveRun((run) => {
-      if (!run || run.session.status !== "active") return run;
+      if (!run || run.session.status !== "active") {
+        return run;
+      }
       const session = cloneSession(run.session);
-      if (session.isCarryMatch || !session.pendingPairs.length)
+      if (session.isCarryMatch || !session.pendingPairs.length) {
         session.activePair = [session.activePair[1], session.activePair[0]];
-      else {
+      } else {
         session.pendingPairs.push(session.activePair);
         session.activePair = session.pendingPairs.shift()!;
       }

@@ -94,11 +94,7 @@ export function Header({
             <span>{user?.nickname ?? t("Sign in")}</span>
           </button>
           {user && profileOpen && (
-            <ProfileMenu
-              user={user}
-              onLogout={onLogout}
-              onAvatar={onAvatar}
-            />
+            <ProfileMenu user={user} onLogout={onLogout} onAvatar={onAvatar} />
           )}
         </div>
       </div>
@@ -109,11 +105,7 @@ export function Header({
 function Logo({ onClick }: { onClick: () => void }) {
   const { t } = useI18n();
   return (
-    <button
-      className="brand"
-      onClick={onClick}
-      aria-label={t("MRanking home")}
-    >
+    <button className="brand" onClick={onClick} aria-label={t("MRanking home")}>
       <LogoMark />
       <span className="brand-name">
         M
@@ -159,7 +151,9 @@ function ProfileMenu({
   const [avatarError, setAvatarError] = useState("");
   async function upload(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      return;
+    }
     if (file.size > 2 * 1024 * 1024) {
       setAvatarError(t("Avatar must be smaller than 2 MB"));
       event.target.value = "";

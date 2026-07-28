@@ -20,7 +20,7 @@ const PASSWORD_ITERATIONS = 100_000;
 let schemaPromise: Promise<void> | null = null;
 
 export function runtimeEnv() {
-  return env as unknown as RuntimeEnv;
+  return env as RuntimeEnv;
 }
 
 export function getD1() {
@@ -28,7 +28,9 @@ export function getD1() {
 }
 
 export async function ensureSchema() {
-  if (schemaPromise) return schemaPromise;
+  if (schemaPromise) {
+    return schemaPromise;
+  }
   schemaPromise = initializeSchema().catch((error) => {
     schemaPromise = null;
     throw error;
@@ -111,11 +113,14 @@ async function initializeSchema() {
     "CREATE UNIQUE INDEX IF NOT EXISTS runs_user_pack_idx ON runs(user_id, pack_id)",
   ];
   await db.batch(statements.map((sql) => db.prepare(sql)));
-  const resultColumns = (await db.prepare("PRAGMA table_info(results)").all<{
-    name: string;
-  }>()).results;
-  if (!resultColumns.some((column) => column.name === "pack_json"))
+  const resultColumns = (
+    await db.prepare("PRAGMA table_info(results)").all<{
+      name: string;
+    }>()
+  ).results;
+  if (!resultColumns.some((column) => column.name === "pack_json")) {
     await db.prepare("ALTER TABLE results ADD COLUMN pack_json TEXT").run();
+  }
 }
 
 export function normalizeNickname(value: string) {
@@ -123,19 +128,42 @@ export function normalizeNickname(value: string) {
 }
 
 export async function hashPassword(password: string, saltBase64?: string) {
-  const salt = saltBase64 ? base64ToBytes(saltBase64) : crypto.getRandomValues(new Uint8Array(16));
-  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveBits"]);
-  const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", salt, iterations: PASSWORD_ITERATIONS, hash: "SHA-256" }, key, 256);
-  return { salt: bytesToBase64(salt), hash: bytesToBase64(new Uint8Array(bits)) };
+  const salt = saltBase64
+    ? base64ToBytes(saltBase64)
+    : crypto.getRandomValues(new Uint8Array(16));
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(password),
+    "PBKDF2",
+    false,
+    ["deriveBits"],
+  );
+  const bits = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", salt, iterations: PASSWORD_ITERATIONS, hash: "SHA-256" },
+    key,
+    256,
+  );
+  return {
+    salt: bytesToBase64(salt),
+    hash: bytesToBase64(new Uint8Array(bits)),
+  };
 }
 
-export async function verifyPassword(password: string, salt: string, expectedHash: string) {
+export async function verifyPassword(
+  password: string,
+  salt: string,
+  expectedHash: string,
+) {
   const actual = await hashPassword(password, salt);
   const left = base64ToBytes(actual.hash);
   const right = base64ToBytes(expectedHash);
-  if (left.length !== right.length) return false;
+  if (left.length !== right.length) {
+    return false;
+  }
   let difference = 0;
-  for (let index = 0; index < left.length; index += 1) difference |= left[index] ^ right[index];
+  for (let index = 0; index < left.length; index += 1) {
+    difference |= left[index] ^ right[index];
+  }
   return difference === 0;
 }
 
@@ -144,9 +172,18 @@ export async function createSession(userId: string, request: Request) {
   const tokenHash = await sha256(token);
   const createdAt = new Date();
   const expiresAt = new Date(createdAt.getTime() + SESSION_SECONDS * 1000);
-  await getD1().prepare(
-    "INSERT INTO sessions (id, user_id, token_hash, expires_at, created_at) VALUES (?, ?, ?, ?, ?)",
-  ).bind(crypto.randomUUID(), userId, tokenHash, expiresAt.toISOString(), createdAt.toISOString()).run();
+  await getD1()
+    .prepare(
+      "INSERT INTO sessions (id, user_id, token_hash, expires_at, created_at) VALUES (?, ?, ?, ?, ?)",
+    )
+    .bind(
+      crypto.randomUUID(),
+      userId,
+      tokenHash,
+      expiresAt.toISOString(),
+      createdAt.toISOString(),
+    )
+    .run();
   return {
     token,
     cookie: sessionCookie(token, SESSION_SECONDS, request),
@@ -155,25 +192,45 @@ export async function createSession(userId: string, request: Request) {
 
 export async function destroySession(request: Request) {
   const token = getCookie(request, SESSION_COOKIE);
-  if (token) await getD1().prepare("DELETE FROM sessions WHERE token_hash = ?").bind(await sha256(token)).run();
+  if (token) {
+    await getD1()
+      .prepare("DELETE FROM sessions WHERE token_hash = ?")
+      .bind(await sha256(token))
+      .run();
+  }
   return sessionCookie("", 0, request);
 }
 
-export async function getAuthenticatedUser(request: Request): Promise<User | null> {
+export async function getAuthenticatedUser(
+  request: Request,
+): Promise<User | null> {
   await ensureSchema();
   const token = getCookie(request, SESSION_COOKIE);
-  if (!token) return null;
-  const row = await getD1().prepare(
-    `SELECT u.id, u.nickname, u.avatar_emoji, u.avatar_key, u.created_at
+  if (!token) {
+    return null;
+  }
+  const row = await getD1()
+    .prepare(
+      `SELECT u.id, u.nickname, u.avatar_emoji, u.avatar_key, u.created_at
      FROM sessions s JOIN users u ON u.id = s.user_id
      WHERE s.token_hash = ? AND s.expires_at > ? AND u.deleted_at IS NULL`,
-  ).bind(await sha256(token), new Date().toISOString()).first<UserRow>();
+    )
+    .bind(await sha256(token), new Date().toISOString())
+    .first<UserRow>();
   return row ? serializeUser(row) : null;
 }
 
 export async function requireUser(request: Request) {
   const user = await getAuthenticatedUser(request);
-  if (!user) return { user: null, response: Response.json({ error: "Authentication required" }, { status: 401 }) };
+  if (!user) {
+    return {
+      user: null,
+      response: Response.json(
+        { error: "Authentication required" },
+        { status: 401 },
+      ),
+    };
+  }
   return { user, response: null };
 }
 
@@ -182,13 +239,15 @@ export function serializeUser(row: UserRow): User {
     id: row.id,
     nickname: row.nickname,
     avatarEmoji: row.avatar_emoji,
-    avatarUrl: row.avatar_key ? `/api/avatar?user=${encodeURIComponent(row.id)}` : null,
+    avatarUrl: row.avatar_key
+      ? `/api/avatar?user=${encodeURIComponent(row.id)}`
+      : null,
     createdAt: row.created_at,
   };
 }
 
-export function jsonError(
-  error: unknown,
+export function jsonError<ErrorValue>(
+  error: ErrorValue,
   fallback = "Unexpected error",
   status = 500,
 ) {
@@ -204,7 +263,9 @@ function getCookie(request: Request, name: string) {
   const cookies = request.headers.get("cookie") ?? "";
   for (const item of cookies.split(";")) {
     const [key, ...value] = item.trim().split("=");
-    if (key === name) return value.join("=");
+    if (key === name) {
+      return value.join("=");
+    }
   }
   return null;
 }
@@ -215,22 +276,32 @@ function sessionCookie(token: string, maxAge: number, request: Request) {
 }
 
 async function sha256(value: string) {
-  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(value),
+  );
   return bytesToHex(new Uint8Array(digest));
 }
 
 function bytesToHex(bytes: Uint8Array) {
-  return Array.from(bytes, (value) => value.toString(16).padStart(2, "0")).join("");
+  return Array.from(bytes, (value) => value.toString(16).padStart(2, "0")).join(
+    "",
+  );
 }
 
 function bytesToBase64(bytes: Uint8Array) {
   let binary = "";
-  for (const byte of bytes) binary += String.fromCharCode(byte);
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte);
+  }
   return btoa(binary);
 }
 
 function bytesToBase64Url(bytes: Uint8Array) {
-  return bytesToBase64(bytes).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return bytesToBase64(bytes)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
 }
 
 function base64ToBytes(value: string) {

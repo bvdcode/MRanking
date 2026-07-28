@@ -1,6 +1,5 @@
 import type { PlaylistPreview } from "./types";
-
-type JsonObject = Record<string, unknown>;
+import type { JsonObject, JsonValue } from "./json-value";
 
 const YANDEX_PROXY_ORIGIN = "http://92.38.49.211:8787";
 
@@ -14,8 +13,9 @@ export async function parseYandexMusicPlaylist(
 ): Promise<PlaylistPreview> {
   const submitted = parseUrl(input);
   const location = playlistLocation(submitted);
-  if (!location)
+  if (!location) {
     throw new Error("This link does not contain a Yandex Music playlist");
+  }
 
   const data = await yandexProxyRequest(location, signal);
   const playlist = isObject(data.result) ? data.result : data;
@@ -101,10 +101,11 @@ export async function parseYandexMusicPlaylist(
       count: hiddenCount,
     });
   }
-  if (items.length === 0)
+  if (items.length === 0) {
     throw new Error(
       "The Yandex Music playlist is private, unavailable or contains no playable tracks",
     );
+  }
 
   return {
     title: stringValue(playlist.title) || "Yandex Music playlist",
@@ -126,8 +127,9 @@ function parseUrl(input: string) {
     throw new Error("Paste a valid Yandex Music playlist URL");
   }
   const host = url.hostname.toLowerCase();
-  if (!/^music\.yandex\.(?:ru|com|by|kz|uz|az)$/.test(host))
+  if (!/^music\.yandex\.(?:ru|com|by|kz|uz|az)$/.test(host)) {
     throw new Error("Only Yandex Music links are supported here");
+  }
   return url;
 }
 
@@ -147,23 +149,26 @@ function playlistLocation(url: URL): YandexLocation | null {
     };
   }
   const playlistsIndex = parts.indexOf("playlists");
-  if (playlistsIndex >= 0 && parts[playlistsIndex + 1])
+  if (playlistsIndex >= 0 && parts[playlistsIndex + 1]) {
     return {
       kind: "uuid",
       playlistUuid: decodeURIComponent(parts[playlistsIndex + 1]),
     };
+  }
   const playlistIndex = parts.indexOf("playlist");
-  if (playlistIndex >= 0 && parts[playlistIndex + 2])
+  if (playlistIndex >= 0 && parts[playlistIndex + 2]) {
     return {
       kind: "user",
       userId: decodeURIComponent(parts[playlistIndex + 1]),
       playlistKind: decodeURIComponent(parts[playlistIndex + 2]),
     };
-  if (playlistIndex >= 0 && parts[playlistIndex + 1])
+  }
+  if (playlistIndex >= 0 && parts[playlistIndex + 1]) {
     return {
       kind: "uuid",
       playlistUuid: decodeURIComponent(parts[playlistIndex + 1]),
     };
+  }
   return null;
 }
 
@@ -185,8 +190,9 @@ async function yandexProxyRequest(
   });
   const data = (await response.json().catch(() => ({}))) as JsonObject;
   if (!response.ok || isObject(data.error)) {
-    if (response.status === 404)
+    if (response.status === 404) {
       throw new Error("The Yandex Music playlist was not found");
+    }
     throw new Error("Yandex Music did not return this playlist");
   }
   return data;
@@ -194,47 +200,58 @@ async function yandexProxyRequest(
 
 function declaredTrackCount(playlist: JsonObject) {
   return (
-    numberValue(playlist.trackCount) ||
-    numberValue(playlist.tracksCount) ||
-    0
+    numberValue(playlist.trackCount) || numberValue(playlist.tracksCount) || 0
   );
 }
 
-function yandexCover(value: unknown, fallback: string) {
+function yandexCover(value: JsonValue, fallback: string) {
   let uri = "";
-  if (typeof value === "string") uri = value;
+  if (typeof value === "string") {
+    uri = value;
+  }
   if (isObject(value)) {
     uri = stringValue(value.uri);
-    if (!uri && Array.isArray(value.itemsUri))
-      uri = stringValue(value.itemsUri.find((item) => typeof item === "string"));
+    if (!uri && Array.isArray(value.itemsUri)) {
+      uri = stringValue(
+        value.itemsUri.find((item) => typeof item === "string"),
+      );
+    }
   }
-  if (!uri) return fallback;
+  if (!uri) {
+    return fallback;
+  }
   uri = uri.replace("%%", "400x400");
-  if (uri.startsWith("//")) return `https:${uri}`;
-  if (!/^https?:\/\//i.test(uri)) return `https://${uri}`;
+  if (uri.startsWith("//")) {
+    return `https:${uri}`;
+  }
+  if (!/^https?:\/\//i.test(uri)) {
+    return `https://${uri}`;
+  }
   return uri;
 }
 
 function formatDuration(milliseconds: number) {
-  if (!milliseconds) return null;
+  if (!milliseconds) {
+    return null;
+  }
   const seconds = Math.round(milliseconds / 1_000);
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
 }
 
-function isObject(value: unknown): value is JsonObject {
+function isObject(value: JsonValue): value is JsonObject {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function stringValue(value: unknown) {
+function stringValue(value: JsonValue) {
   return typeof value === "string" ? value : "";
 }
 
-function stringish(value: unknown) {
+function stringish(value: JsonValue) {
   return typeof value === "string" || typeof value === "number"
     ? String(value)
     : "";
 }
 
-function numberValue(value: unknown) {
+function numberValue(value: JsonValue) {
   return typeof value === "number" && Number.isFinite(value) ? value : 0;
 }

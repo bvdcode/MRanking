@@ -48,17 +48,25 @@ export function isYouTubeSource(sourceType: SourceType) {
 }
 
 export function sourceName(sourceType: SourceType) {
-  if (sourceType === "youtubeMusic") return "YouTube Music";
-  if (sourceType === "spotify") return "Spotify";
-  if (sourceType === "yandexMusic") return "Yandex Music";
+  if (sourceType === "youtubeMusic") {
+    return "YouTube Music";
+  }
+  if (sourceType === "spotify") {
+    return "Spotify";
+  }
+  if (sourceType === "yandexMusic") {
+    return "Yandex Music";
+  }
   return "YouTube";
 }
 
 export function mediaEmbedUrl(sourceType: SourceType, item: PackItem) {
-  if (sourceType === "spotify")
+  if (sourceType === "spotify") {
     return `https://open.spotify.com/embed/track/${encodeURIComponent(item.videoId)}?utm_source=generator`;
-  if (sourceType === "yandexMusic")
+  }
+  if (sourceType === "yandexMusic") {
     return `https://music.yandex.ru/iframe/track/${encodeURIComponent(item.videoId)}`;
+  }
   return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(item.videoId)}?autoplay=1&rel=0`;
 }
 
