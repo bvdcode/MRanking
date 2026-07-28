@@ -9,6 +9,7 @@ export function packToEditable(pack: Pack): EditablePack {
     sourceUrl: pack.sourceUrl,
     coverType: pack.coverType,
     coverValue: pack.coverValue,
+    visibility: pack.visibility,
     skipped: 0,
     duplicates: 0,
     issues: [],

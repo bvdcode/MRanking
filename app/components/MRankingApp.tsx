@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { Pack, SavedResult } from "../../lib/types";
+import type { Pack, SavedResult, WheelResult } from "../../lib/types";
 import { exportPack, packToEditable } from "../domain/pack";
 import { I18nContext, translate } from "../i18n/I18nContext";
 import { usePreferencesStore } from "../state/preferences";
@@ -10,19 +10,20 @@ import { LoginModal } from "./auth/LoginModal";
 import { HomeView } from "./home/HomeView";
 import { usePrivateLibrary } from "./hooks/usePrivateLibrary";
 import { useTournamentRun } from "./hooks/useTournamentRun";
+import { useWheelRun } from "./hooks/useWheelRun";
 import { Header, LogoMark } from "./layout/Header";
-import { KingLibraryView } from "./modes/KingLibraryView";
 import { ModeView } from "./modes/ModeView";
 import { PackLibraryView } from "./packs/PackLibraryView";
 import { UploadView } from "./packs/UploadView";
-import { BattleView } from "./tournament/BattleView";
-import { ResultView } from "./tournament/ResultView";
+import { TournamentFlow } from "./tournament/TournamentFlow";
+import { WheelFlow } from "./wheel/WheelFlow";
 
 export function MRankingApp() {
   const language = usePreferencesStore((state) => state.language);
   const setLanguage = usePreferencesStore((state) => state.setLanguage);
   const [view, setView] = useState<View>("home");
   const [viewedResult, setViewedResult] = useState<SavedResult | null>(null);
+  const [viewedWheelResult, setViewedWheelResult] = useState<WheelResult | null>(null);
   const [editable, setEditable] = useState<EditablePack | null>(null);
   const [loginOpen, setLoginOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -49,9 +50,14 @@ export function MRankingApp() {
     onToast: setToast,
     t,
   });
+  const wheel = useWheelRun({
+    user: library.user,
+    onToast: setToast,
+    t,
+  });
   const {
     activeRun,
-    selectedPack,
+    selectedPack: tournamentPack,
     setActiveRun,
     setModePack,
     startPack: startRun,
@@ -98,6 +104,8 @@ export function MRankingApp() {
       setEditable(null);
     }
     setViewedResult(null);
+    setViewedWheelResult(null);
+    wheel.leaveRun();
     setView(next);
     scrollToPageTop();
   }
@@ -116,6 +124,8 @@ export function MRankingApp() {
     await library.logout();
     setActiveRun(null);
     setViewedResult(null);
+    setViewedWheelResult(null);
+    wheel.clear();
     setEditable(null);
     setProfileOpen(false);
     setView("home");
@@ -125,6 +135,7 @@ export function MRankingApp() {
     await library.savePack(draft);
     setEditable(null);
     setViewedResult(null);
+    setViewedWheelResult(null);
     setView("packs");
     scrollToPageTop();
   }
@@ -143,6 +154,8 @@ export function MRankingApp() {
     setModePack(null);
     setEditable(null);
     setViewedResult(null);
+    setViewedWheelResult(null);
+    wheel.leaveRun();
     setLoginOpen(false);
     setProfileOpen(false);
     setLanguageOpen(false);
@@ -151,17 +164,23 @@ export function MRankingApp() {
   }
 
   function startTournament(pack: Pack, resume = false): void {
+    wheel.leaveRun();
+    setViewedWheelResult(null);
     setViewedResult(null);
     startRun(pack, resume);
     setView("hill");
     scrollToPageTop();
   }
 
-  const viewedResultPack = viewedResult
-    ? (viewedResult.pack ??
-      packs.find((pack) => pack.id === viewedResult.packId) ??
-      null)
-    : null;
+  function startWheel(pack: Pack, resume = false): void {
+    setViewedResult(null);
+    setViewedWheelResult(null);
+    setActiveRun(null);
+    setModePack(null);
+    wheel.startPack(pack, resume);
+    setView("wheel");
+    scrollToPageTop();
+  }
 
   if (booting) {
     return (
@@ -245,9 +264,9 @@ export function MRankingApp() {
         )}
         {view === "modes" && user && (
           <ModeView
-            selectedPack={selectedPack}
+            selectedPack={tournamentPack}
             onBack={() => {
-              if (selectedPack) {
+              if (tournamentPack) {
                 setModePack(null);
                 setView("packs");
               } else {
@@ -255,8 +274,8 @@ export function MRankingApp() {
               }
             }}
             onKing={() => {
-              if (selectedPack) {
-                startTournament(selectedPack);
+              if (tournamentPack) {
+                startTournament(tournamentPack);
                 return;
               }
               setActiveRun(null);
@@ -264,76 +283,76 @@ export function MRankingApp() {
               setView("hill");
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
+            onOpenWheel={() => {
+              if (tournamentPack) {
+                startWheel(tournamentPack, Boolean(wheel.runs[tournamentPack.id]));
+                return;
+              }
+              setActiveRun(null);
+              setModePack(null);
+              wheel.leaveRun();
+              setViewedWheelResult(null);
+              setView("wheel");
+              scrollToPageTop();
+            }}
           />
         )}
-        {view === "hill" &&
-          user &&
-          !activeRun &&
-          viewedResult &&
-          viewedResultPack && (
-            <ResultView
-              pack={viewedResultPack}
-              run={{ session: viewedResult.session, undoStack: [] }}
-              completedAt={viewedResult.completedAt}
-              archived
-              onAgain={
-                packs.some((pack) => pack.id === viewedResult.packId)
-                  ? () =>
-                    startTournament(
-                      packs.find((pack) => pack.id === viewedResult.packId)!,
-                    )
-                  : undefined
-              }
-              onBack={() => setViewedResult(null)}
-              onDelete={() => void deleteResult(viewedResult)}
-            />
-          )}
-        {view === "hill" && user && !activeRun && !viewedResult && (
-          <KingLibraryView
+        {view === "hill" && user && (
+          <TournamentFlow
             packs={packs}
             results={results}
             runs={savedRuns}
-            onBack={() => setView("modes")}
-            onPacks={() => {
+            activeRun={activeRun}
+            selectedPack={tournamentPack}
+            viewedResult={viewedResult}
+            onBackModes={() => setView("modes")}
+            onUpload={() => {
               setEditable(null);
               protectedNavigate("upload");
             }}
-            onStart={(pack) => startTournament(pack)}
-            onContinue={(pack) => startTournament(pack, true)}
-            onCancelRun={(pack) => void cancelRun(pack)}
-            onOpenResult={(result) => {
-              setViewedResult(result);
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
+            onStart={startTournament}
+            onClearResult={() => setViewedResult(null)}
+            onOpenResult={setViewedResult}
             onDeleteResult={(result) => void deleteResult(result)}
+            onCancelRun={(pack) => void cancelRun(pack)}
+            onPick={chooseWinner}
+            onUndo={undo}
+            onReshuffle={reshuffle}
+            onExitRun={() => setActiveRun(null)}
           />
         )}
-        {view === "hill" &&
-          user &&
-          activeRun &&
-          selectedPack &&
-          activeRun.session.status === "active" && (
-            <BattleView
-              pack={selectedPack}
-              run={activeRun}
-              onPick={chooseWinner}
-              onUndo={undo}
-              onReshuffle={reshuffle}
-              onExit={() => setActiveRun(null)}
-            />
-          )}
-        {view === "hill" &&
-          user &&
-          activeRun &&
-          selectedPack &&
-          activeRun.session.status === "complete" && (
-            <ResultView
-              pack={selectedPack}
-              run={activeRun}
-              onAgain={() => startTournament(selectedPack)}
-              onBack={() => setActiveRun(null)}
-            />
-          )}
+        {view === "wheel" && user && (
+          <WheelFlow
+            packs={packs}
+            runs={wheel.runs}
+            results={wheel.results}
+            settings={wheel.settings}
+            activeRun={wheel.activeRun}
+            selectedPack={wheel.selectedPack}
+            viewedResult={viewedWheelResult}
+            onViewedResult={(result) => {
+              setViewedWheelResult(result);
+              scrollToPageTop();
+            }}
+            onBackToModes={() => {
+              setView("modes");
+              scrollToPageTop();
+            }}
+            onUpload={() => {
+              setEditable(null);
+              protectedNavigate("upload");
+            }}
+            onStart={startWheel}
+            onRunChange={wheel.setActiveRun}
+            onSettings={wheel.setSettings}
+            onLeave={() => {
+              wheel.leaveRun();
+              scrollToPageTop();
+            }}
+            onCancel={(pack) => void wheel.cancelRun(pack)}
+            onDeleteResult={(result) => void wheel.deleteResult(result)}
+          />
+        )}
         <footer>
           <span>MRanking / {t("Tournament platform")}</span>
           <span>

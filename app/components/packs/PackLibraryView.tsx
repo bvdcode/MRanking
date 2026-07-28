@@ -51,7 +51,9 @@ export function PackLibraryView({
             </button>
             <div className="pack-tile-body">
               <div className="pack-meta">
-                <span>{t(sourceName(pack.sourceType))}</span>
+                <span>
+                  {t(sourceName(pack.sourceType))} · {t(pack.visibility === "public" ? "Public" : "Private")}
+                </span>
                 <span>
                   {pack.itemCount}{" "}
                   {t(isYouTubeSource(pack.sourceType) ? "videos" : "tracks")}

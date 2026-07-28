@@ -1,5 +1,10 @@
 import { getD1, jsonError, requireUser, uid } from "../../../lib/server";
-import type { Pack, PackItem, SourceType } from "../../../lib/types";
+import type {
+  Pack,
+  PackItem,
+  PackVisibility,
+  SourceType,
+} from "../../../lib/types";
 
 type PackRow = {
   id: string;
@@ -10,6 +15,7 @@ type PackRow = {
   source_url: string;
   cover_type: "thumbnail" | "emoji";
   cover_value: string;
+  visibility: PackVisibility;
   item_count: number;
   created_at: string;
   updated_at: string;
@@ -34,6 +40,7 @@ type PackPayload = {
   sourceUrl?: string;
   coverType?: "thumbnail" | "emoji";
   coverValue?: string;
+  visibility?: PackVisibility;
   items?: Array<Partial<PackItem>>;
 };
 
@@ -74,10 +81,10 @@ export async function POST(request: Request) {
     if (packId) {
       const existing = await db
         .prepare(
-          "SELECT owner_id, created_at FROM packs WHERE id = ? AND deleted_at IS NULL",
+          "SELECT owner_id, visibility FROM packs WHERE id = ? AND deleted_at IS NULL",
         )
         .bind(packId)
-        .first<{ owner_id: string; created_at: string }>();
+        .first<{ owner_id: string; visibility: PackVisibility }>();
       if (!existing) {
         return Response.json({ error: "Pack not found" }, { status: 404 });
       }
@@ -91,7 +98,7 @@ export async function POST(request: Request) {
         .run();
       await db
         .prepare(
-          `UPDATE packs SET name = ?, source_type = ?, source_url = ?, cover_type = ?, cover_value = ?, item_count = ?, updated_at = ?
+          `UPDATE packs SET name = ?, source_type = ?, source_url = ?, cover_type = ?, cover_value = ?, visibility = ?, item_count = ?, updated_at = ?
          WHERE id = ?`,
         )
         .bind(
@@ -100,6 +107,7 @@ export async function POST(request: Request) {
           body.sourceUrl,
           body.coverType,
           body.coverValue,
+          body.visibility ?? existing.visibility,
           body.items!.length,
           now,
           packId,
@@ -109,8 +117,8 @@ export async function POST(request: Request) {
       packId = uid("pack");
       await db
         .prepare(
-          `INSERT INTO packs (id, owner_id, name, source_type, source_url, cover_type, cover_value, item_count, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          `INSERT INTO packs (id, owner_id, name, source_type, source_url, cover_type, cover_value, visibility, item_count, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         )
         .bind(
           packId,
@@ -120,6 +128,7 @@ export async function POST(request: Request) {
           body.sourceUrl,
           body.coverType,
           body.coverValue,
+          body.visibility ?? "private",
           body.items!.length,
           now,
           now,
@@ -163,6 +172,7 @@ export async function DELETE(request: Request) {
     const now = new Date().toISOString();
     await db.batch([
       db.prepare("DELETE FROM runs WHERE pack_id = ?").bind(id),
+      db.prepare("DELETE FROM wheel_runs WHERE pack_id = ?").bind(id),
       db
         .prepare("UPDATE packs SET deleted_at = ?, updated_at = ? WHERE id = ?")
         .bind(now, now, id),
@@ -193,6 +203,12 @@ function validatePack(body: PackPayload) {
   }
   if (!body.coverValue?.trim()) {
     return "Choose a cover";
+  }
+  if (
+    body.visibility !== undefined &&
+    !["private", "public"].includes(body.visibility)
+  ) {
+    return "Unknown pack visibility";
   }
   if (!Array.isArray(body.items) || body.items.length < 16) {
     return "A pack needs at least 16 items";
@@ -263,6 +279,7 @@ async function hydratePacks(rows: PackRow[]): Promise<Pack[]> {
     sourceUrl: row.source_url,
     coverType: row.cover_type,
     coverValue: row.cover_value,
+    visibility: row.visibility,
     itemCount: row.item_count,
     createdAt: row.created_at,
     updatedAt: row.updated_at,

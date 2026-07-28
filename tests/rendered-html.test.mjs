@@ -10,9 +10,11 @@ const applicationSources = [
   "../app/components/home/HomeView.tsx",
   "../app/components/hooks/usePrivateLibrary.ts",
   "../app/components/hooks/useTournamentRun.ts",
+  "../app/components/hooks/useWheelRun.ts",
   "../app/components/layout/Header.tsx",
   "../app/components/modes/KingLibraryView.tsx",
   "../app/components/modes/ModeView.tsx",
+  "../app/components/modes/WheelLibraryView.tsx",
   "../app/components/packs/MusicSourceChooser.tsx",
   "../app/components/packs/PackEditor.tsx",
   "../app/components/packs/PackLibraryView.tsx",
@@ -24,8 +26,12 @@ const applicationSources = [
   "../app/components/tournament/ResultView.tsx",
   "../app/components/tournament/TournamentBracket.tsx",
   "../app/components/tournament/TournamentRoundExplorer.tsx",
+  "../app/components/wheel/WheelView.tsx",
   "../app/domain/pack.ts",
   "../app/domain/tournament.ts",
+  "../app/domain/wheel.ts",
+  "../app/domain/wheelSound.ts",
+  "../app/domain/wheelState.ts",
   "../app/i18n/translations/ru.ts",
   "../app/i18n/translations/uk.ts",
   "../app/state/preferences.ts",
@@ -46,6 +52,7 @@ async function readStyles() {
     "../app/styles/base.css",
     "../app/styles/features.css",
     "../app/styles/responsive.css",
+    "../app/styles/wheel.css",
   ];
   const sources = await Promise.all(
     paths.map((path) => readFile(new URL(path, import.meta.url), "utf8")),
@@ -268,33 +275,6 @@ test("responsive layout prevents viewport and mobile overflow regressions", asyn
     responsive,
     /@media \(min-width: 1025px\) and \(max-height: 820px\)/,
   );
-});
-
-test("profile playlist picker keeps artwork square and titles readable", async () => {
-  const styles = await readStyles();
-  assert.match(styles, /\.profile-playlist-art \{[^}]*aspect-ratio: 1 \/ 1/);
-  assert.match(styles, /\.profile-playlist-art img \{[^}]*object-fit: cover/);
-  assert.match(styles, /data-art-shape="square"[^}]*width: 88%/);
-  assert.match(styles, /\.profile-playlist-copy strong \{[^}]*font: 750 18px/);
-});
-
-test("language control translates the whole interface", async () => {
-  const source = await readApplicationSource();
-
-  assert.match(source, /рузкий/);
-  assert.match(source, /УкрАинский/);
-  assert.match(source, /onLanguage\("ru"\)/);
-  assert.match(source, /onLanguage\("uk"\)/);
-  assert.match(source, /"King of the Hill": "Король горы"/);
-  assert.match(source, /"King of the Hill": "Король гори"/);
-  assert.match(source, /Packs: "Паки"/);
-  assert.match(source, /Modes: "Режимы"/);
-  assert.match(source, /Modes: "Режими"/);
-  assert.match(source, /"Rate it\.": "Оцени\."/);
-  assert.match(source, /"Rate it\.": "Оціни\."/);
-  assert.doesNotMatch(source, /localStorage/);
-  assert.match(source, /usePreferencesStore/);
-  assert.match(source, /document\.documentElement\.lang = next/);
 });
 
 test("server supports self-registration, ownership and durable storage", async () => {

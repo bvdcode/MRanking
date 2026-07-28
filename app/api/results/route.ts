@@ -1,5 +1,11 @@
 import { getD1, jsonError, requireUser } from "../../../lib/server";
-import type { Pack, PackItem, Session, SourceType } from "../../../lib/types";
+import type {
+  Pack,
+  PackItem,
+  PackVisibility,
+  Session,
+  SourceType,
+} from "../../../lib/types";
 
 type ResultRow = {
   id: string;
@@ -19,6 +25,7 @@ type PackRow = {
   source_url: string;
   cover_type: "thumbnail" | "emoji";
   cover_value: string;
+  visibility: PackVisibility;
   item_count: number;
   created_at: string;
   updated_at: string;
@@ -212,6 +219,7 @@ async function loadPackSnapshot(packId: string, activeOnly = false) {
     sourceUrl: row.source_url,
     coverType: row.cover_type,
     coverValue: row.cover_value,
+    visibility: row.visibility,
     itemCount: row.item_count,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -238,7 +246,12 @@ function parseStoredPack(value: string | null): Pack | null {
   }
   try {
     const parsed = JSON.parse(value) as Pack;
-    return parsed && Array.isArray(parsed.items) ? parsed : null;
+    return parsed && Array.isArray(parsed.items)
+      ? {
+          ...parsed,
+          visibility: parsed.visibility === "public" ? "public" : "private",
+        }
+      : null;
   } catch {
     return null;
   }

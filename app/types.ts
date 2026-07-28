@@ -1,6 +1,6 @@
 import type { PackItem, PlaylistImportIssue, SourceType } from "../lib/types";
 
-export type View = "home" | "upload" | "packs" | "modes" | "hill";
+export type View = "home" | "upload" | "packs" | "modes" | "hill" | "wheel";
 
 export type EditablePack = {
   id?: string;
@@ -9,6 +9,7 @@ export type EditablePack = {
   sourceUrl: string;
   coverType: "thumbnail" | "emoji";
   coverValue: string;
+  visibility: "private" | "public";
   skipped: number;
   duplicates: number;
   issues: PlaylistImportIssue[];

@@ -1,4 +1,11 @@
-import { integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
+import {
+  integer,
+  index,
+  real,
+  sqliteTable,
+  text,
+  uniqueIndex,
+} from "drizzle-orm/sqlite-core";
 
 export const users = sqliteTable("users", {
   id: text("id").primaryKey(),
@@ -29,6 +36,9 @@ export const packs = sqliteTable("packs", {
   sourceUrl: text("source_url").notNull(),
   coverType: text("cover_type", { enum: ["thumbnail", "emoji"] }).notNull().default("thumbnail"),
   coverValue: text("cover_value").notNull(),
+  visibility: text("visibility", { enum: ["private", "public"] })
+    .notNull()
+    .default("private"),
   itemCount: integer("item_count").notNull(),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
@@ -64,3 +74,40 @@ export const results = sqliteTable("results", {
   packJson: text("pack_json"),
   completedAt: text("completed_at").notNull(),
 });
+
+export const wheelSettings = sqliteTable("wheel_settings", {
+  userId: text("user_id").primaryKey().references(() => users.id),
+  durationSeconds: integer("duration_seconds").notNull().default(5),
+  soundEnabled: integer("sound_enabled", { mode: "boolean" })
+    .notNull()
+    .default(true),
+  volume: real("volume").notNull().default(0.65),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const wheelRuns = sqliteTable("wheel_runs", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => users.id),
+  packId: text("pack_id").notNull().references(() => packs.id),
+  stateJson: text("state_json").notNull(),
+  updatedAt: text("updated_at").notNull(),
+}, (table) => [
+  uniqueIndex("wheel_runs_user_pack_idx").on(table.userId, table.packId),
+]);
+
+export const wheelResults = sqliteTable(
+  "wheel_results",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id").notNull().references(() => users.id),
+    packId: text("pack_id").notNull().references(() => packs.id),
+    winnerItemId: text("winner_item_id").notNull(),
+    mode: text("mode", { enum: ["classic", "lastOneStanding"] }).notNull(),
+    stateJson: text("state_json").notNull(),
+    packJson: text("pack_json").notNull(),
+    completedAt: text("completed_at").notNull(),
+  },
+  (table) => [
+    index("wheel_results_user_id_idx").on(table.userId, table.completedAt),
+  ],
+);

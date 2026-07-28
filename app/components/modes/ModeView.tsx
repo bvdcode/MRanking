@@ -14,6 +14,13 @@ const MODES = [
     live: true,
   },
   {
+    id: "wheel",
+    title: "Wheel",
+    icon: "◉",
+    copy: "Spin weighted chances and let the wheel decide.",
+    live: true,
+  },
+  {
     id: "tier",
     title: "Tier List",
     icon: "▤",
@@ -54,10 +61,12 @@ export function ModeView({
   selectedPack,
   onBack,
   onKing,
+  onOpenWheel,
 }: {
   selectedPack: Pack | null;
   onBack: () => void;
   onKing: () => void;
+  onOpenWheel: () => void;
 }) {
   const { t } = useI18n();
   return (
@@ -87,7 +96,13 @@ export function ModeView({
             key={mode.id}
             className={`mode-tile ${mode.live ? "live" : "locked"}`}
             disabled={!mode.live}
-            onClick={mode.live ? onKing : undefined}
+            onClick={
+              mode.id === "king"
+                ? onKing
+                : mode.id === "wheel"
+                  ? onOpenWheel
+                  : undefined
+            }
           >
             <span className="mode-number">0{index + 1}</span>
             <i>{mode.icon}</i>

@@ -99,6 +99,7 @@ export function UploadView({
         sourceUrl: data.playlist.sourceUrl,
         coverType: "thumbnail",
         coverValue: data.playlist.cover,
+        visibility: "private",
         skipped: data.playlist.skipped,
         duplicates: data.playlist.duplicates,
         issues: data.playlist.issues ?? [],

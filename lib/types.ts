@@ -1,5 +1,7 @@
 export type Language = "en" | "ru" | "uk";
 
+export type PackVisibility = "private" | "public";
+
 export type SourceType =
   | "youtube"
   | "youtubeMusic"
@@ -34,6 +36,7 @@ export type Pack = {
   sourceUrl: string;
   coverType: "thumbnail" | "emoji";
   coverValue: string;
+  visibility: PackVisibility;
   itemCount: number;
   createdAt: string;
   updatedAt: string;
@@ -130,3 +133,57 @@ export type UndoSnapshot = {
 };
 
 export type ActiveRun = { session: Session; undoStack: UndoSnapshot[] };
+
+export type WheelMode = "classic" | "lastOneStanding";
+
+export type WheelEntryState = {
+  itemId: string;
+  chance: number;
+  color: string;
+  enabled: boolean;
+  eliminated: boolean;
+};
+
+export type WheelStateSnapshot = {
+  entries: WheelEntryState[];
+  winnerItemId: string | null;
+  rotation: number;
+};
+
+export type WheelSessionState = WheelStateSnapshot & {
+  mode: WheelMode;
+  status: "active" | "complete";
+  auto: boolean;
+  undoStack: WheelStateSnapshot[];
+  redoStack: WheelStateSnapshot[];
+  updatedAt: string;
+};
+
+export type WheelRun = {
+  id: string;
+  packId: string;
+  state: WheelSessionState;
+  updatedAt: string;
+};
+
+export type WheelResultSnapshot = WheelStateSnapshot & {
+  mode: WheelMode;
+  status: "complete";
+  winnerItemId: string;
+};
+
+export type WheelResult = {
+  id: string;
+  packId: string;
+  winnerItemId: string;
+  mode: WheelMode;
+  state: WheelResultSnapshot;
+  pack: Pack;
+  completedAt: string;
+};
+
+export type WheelSettings = {
+  durationSeconds: number;
+  soundEnabled: boolean;
+  volume: number;
+};

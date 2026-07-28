@@ -114,16 +114,41 @@ export function PackEditor({
             ))}
           </div>
         </div>
-        <label className="large-field editor-name-field">
-          <span>{t("Pack name")}</span>
-          <input
-            value={value.name}
-            maxLength={120}
-            onChange={(event) =>
-              onChange({ ...value, name: event.target.value })
-            }
-          />
-        </label>
+        <div className="editor-pack-fields">
+          <label className="large-field editor-name-field">
+            <span>{t("Pack name")}</span>
+            <input
+              value={value.name}
+              maxLength={120}
+              onChange={(event) =>
+                onChange({ ...value, name: event.target.value })
+              }
+            />
+          </label>
+          <div className="pack-visibility-field">
+            <span className="aside-label">{t("Visibility")}</span>
+            <div className="pack-visibility-options" role="group" aria-label={t("Visibility")}>
+              {(["private", "public"] as const).map((visibility) => (
+                <button
+                  key={visibility}
+                  type="button"
+                  className={value.visibility === visibility ? "selected" : ""}
+                  onClick={() => onChange({ ...value, visibility })}
+                >
+                  <span aria-hidden="true">{visibility === "private" ? "●" : "◎"}</span>
+                  <b>{t(visibility === "private" ? "Private" : "Public")}</b>
+                  <small>
+                    {t(
+                      visibility === "private"
+                        ? "Only you can use this pack."
+                        : "Public-ready for future sharing.",
+                    )}
+                  </small>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
         <div className="editor-save-block">
           <span>{t("Selected")}</span>
           <b>{selectedCount}</b>

@@ -56,7 +56,7 @@ export function Header({
           {t("Your packs")}
         </button>
         <button
-          className={view === "modes" || view === "hill" ? "active" : ""}
+          className={view === "modes" || view === "hill" || view === "wheel" ? "active" : ""}
           onClick={() => onNavigate("modes")}
         >
           <span>03</span>

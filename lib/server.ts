@@ -69,6 +69,7 @@ async function initializeSchema() {
       source_url TEXT NOT NULL,
       cover_type TEXT NOT NULL DEFAULT 'thumbnail',
       cover_value TEXT NOT NULL,
+      visibility TEXT NOT NULL DEFAULT 'private',
       item_count INTEGER NOT NULL,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL,
@@ -107,10 +108,41 @@ async function initializeSchema() {
       FOREIGN KEY (user_id) REFERENCES users(id),
       FOREIGN KEY (pack_id) REFERENCES packs(id)
     )`,
+    `CREATE TABLE IF NOT EXISTS wheel_settings (
+      user_id TEXT PRIMARY KEY,
+      duration_seconds INTEGER NOT NULL DEFAULT 5,
+      sound_enabled INTEGER NOT NULL DEFAULT 1,
+      volume REAL NOT NULL DEFAULT 0.65,
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES users(id)
+    )`,
+    `CREATE TABLE IF NOT EXISTS wheel_runs (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      pack_id TEXT NOT NULL,
+      state_json TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES users(id),
+      FOREIGN KEY (pack_id) REFERENCES packs(id)
+    )`,
+    `CREATE TABLE IF NOT EXISTS wheel_results (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      pack_id TEXT NOT NULL,
+      winner_item_id TEXT NOT NULL,
+      mode TEXT NOT NULL,
+      state_json TEXT NOT NULL,
+      pack_json TEXT NOT NULL,
+      completed_at TEXT NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES users(id),
+      FOREIGN KEY (pack_id) REFERENCES packs(id)
+    )`,
     "CREATE INDEX IF NOT EXISTS packs_owner_id_idx ON packs(owner_id)",
     "CREATE INDEX IF NOT EXISTS pack_items_pack_id_idx ON pack_items(pack_id, position)",
     "CREATE INDEX IF NOT EXISTS results_user_id_idx ON results(user_id, completed_at)",
     "CREATE UNIQUE INDEX IF NOT EXISTS runs_user_pack_idx ON runs(user_id, pack_id)",
+    "CREATE UNIQUE INDEX IF NOT EXISTS wheel_runs_user_pack_idx ON wheel_runs(user_id, pack_id)",
+    "CREATE INDEX IF NOT EXISTS wheel_results_user_id_idx ON wheel_results(user_id, completed_at)",
   ];
   await db.batch(statements.map((sql) => db.prepare(sql)));
   const resultColumns = (
@@ -120,6 +152,18 @@ async function initializeSchema() {
   ).results;
   if (!resultColumns.some((column) => column.name === "pack_json")) {
     await db.prepare("ALTER TABLE results ADD COLUMN pack_json TEXT").run();
+  }
+  const packColumns = (
+    await db.prepare("PRAGMA table_info(packs)").all<{
+      name: string;
+    }>()
+  ).results;
+  if (!packColumns.some((column) => column.name === "visibility")) {
+    await db
+      .prepare(
+        "ALTER TABLE packs ADD COLUMN visibility TEXT NOT NULL DEFAULT 'private'",
+      )
+      .run();
   }
 }
 
