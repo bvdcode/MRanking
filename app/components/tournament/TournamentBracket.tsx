@@ -47,18 +47,24 @@ export function TournamentBracket({
   let leafSlot = 0;
   const positioned = new Set<BracketGraphNode>();
   const positionNode = (node: BracketGraphNode): number => {
-    if (positioned.has(node)) return node.y;
+    if (positioned.has(node)) {
+      return node.y;
+    }
     const inputY = node.parents.map((parent) =>
-      parent
-        ? positionNode(parent)
-        : boardTop + (leafSlot++ + 0.5) * leafGap,
+      parent ? positionNode(parent) : boardTop + (leafSlot++ + 0.5) * leafGap,
     );
     node.y = (inputY[0] + inputY[1]) / 2;
     positioned.add(node);
     return node.y;
   };
-  if (root) positionNode(root);
-  for (const node of nodes) if (!positioned.has(node)) positionNode(node);
+  if (root) {
+    positionNode(root);
+  }
+  for (const node of nodes) {
+    if (!positioned.has(node)) {
+      positionNode(node);
+    }
+  }
 
   const cardWidth = 276;
   const cardHeight = 194;
@@ -73,7 +79,9 @@ export function TournamentBracket({
 
   useEffect(() => {
     const element = fitRef.current;
-    if (!element) return;
+    if (!element) {
+      return;
+    }
     const updateScale = () => {
       const fittedScale = (element.clientWidth - 28) / boardWidth;
       setFitScale(
@@ -88,22 +96,24 @@ export function TournamentBracket({
     return () => observer.disconnect();
   }, [boardWidth]);
 
-  const champion = session.championId
-    ? itemById.get(session.championId)
-    : null;
+  const champion = session.championId ? itemById.get(session.championId) : null;
   const arrowMarkerId = `bracket-arrow-${session.id.replace(/[^a-z0-9-]/gi, "")}`;
   const edges = nodes.flatMap((node) =>
     node.parents.flatMap((parent, inputIndex) => {
-      if (!parent) return [];
+      if (!parent) {
+        return [];
+      }
       const startX = boardLeft + parent.stage * columnStep + cardWidth;
       const startY = parent.y;
       const endX = boardLeft + node.stage * columnStep;
       const endY = node.y + (inputIndex === 0 ? -38 : 43);
       const middleX = startX + (endX - startX) / 2;
-      return [{
-        id: `${parent.match.id}-${node.match.id}-${inputIndex}`,
-        path: `M ${startX} ${startY} H ${middleX} V ${endY} H ${endX}`,
-      }];
+      return [
+        {
+          id: `${parent.match.id}-${node.match.id}-${inputIndex}`,
+          path: `M ${startX} ${startY} H ${middleX} V ${endY} H ${endX}`,
+        },
+      ];
     }),
   );
   if (root) {
@@ -121,7 +131,9 @@ export function TournamentBracket({
         <div>
           <span className="modal-kicker">{t("Tournament bracket")}</span>
           <h3>{t("Every battle leads to one champion.")}</h3>
-          <p>{t("Follow every winner through an unbroken path to the final.")}</p>
+          <p>
+            {t("Follow every winner through an unbroken path to the final.")}
+          </p>
         </div>
         <div className="bracket-summary">
           <span>
@@ -134,81 +146,75 @@ export function TournamentBracket({
           </span>
         </div>
       </div>
-      <div className="bracket-fit" ref={fitRef} aria-label={t("Full tournament bracket")}>
-        <div
-          className="bracket-fit-height"
-          style={
-            {
-              height: `${boardHeight * fitScale}px`,
-              "--bracket-scaled-width": `${boardWidth * fitScale}px`,
-            } as React.CSSProperties
-          }
+      <div
+        className="bracket-fit"
+        ref={fitRef}
+        aria-label={t("Full tournament bracket")}
+      >
+        <svg
+          className="bracket-canvas"
+          height={boardHeight * fitScale}
+          viewBox={`0 0 ${boardWidth} ${boardHeight}`}
+          width={boardWidth * fitScale}
         >
-          <div
-            className="bracket-canvas"
-            style={{
-              width: `${boardWidth}px`,
-              height: `${boardHeight}px`,
-              transform: `scale(${fitScale})`,
-            }}
-          >
-            <svg
-              className="bracket-lines"
-              width={boardWidth}
-              height={boardHeight}
-              viewBox={`0 0 ${boardWidth} ${boardHeight}`}
-              aria-hidden="true"
+          <defs>
+            <marker
+              id={arrowMarkerId}
+              markerWidth="9"
+              markerHeight="9"
+              refX="8"
+              refY="4.5"
+              orient="auto"
             >
-              <defs>
-                <marker
-                  id={arrowMarkerId}
-                  markerWidth="9"
-                  markerHeight="9"
-                  refX="8"
-                  refY="4.5"
-                  orient="auto"
-                >
-                  <path className="bracket-arrow-head" d="M 0 0 L 9 4.5 L 0 9 z" />
-                </marker>
-              </defs>
-              {edges.map((edge) => (
-                <path
-                  d={edge.path}
-                  key={edge.id}
-                  markerEnd={`url(#${arrowMarkerId})`}
-                />
-              ))}
-            </svg>
-            {Array.from({ length: maxStage + 1 }, (_, stage) => {
-              const matchCount = nodes.filter((node) => node.stage === stage).length;
-              return (
-                <div
-                  className="bracket-stage-label"
-                  key={stage}
-                  style={{ left: `${boardLeft + stage * columnStep}px` }}
-                >
+              <path className="bracket-arrow-head" d="M 0 0 L 9 4.5 L 0 9 z" />
+            </marker>
+          </defs>
+          <g className="bracket-lines" aria-hidden="true">
+            {edges.map((edge) => (
+              <path
+                d={edge.path}
+                key={edge.id}
+                markerEnd={`url(#${arrowMarkerId})`}
+              />
+            ))}
+          </g>
+          {Array.from({ length: maxStage + 1 }, (_, stage) => {
+            const matchCount = nodes.filter(
+              (node) => node.stage === stage,
+            ).length;
+            return (
+              <foreignObject
+                height="66"
+                key={stage}
+                width={cardWidth}
+                x={boardLeft + stage * columnStep}
+                y="20"
+              >
+                <div className="bracket-stage-label">
                   <span>{t("ROUND {count}", { count: stage + 1 })}</span>
-                  <small>{matchCount} {t("BATTLES")}</small>
+                  <small>
+                    {matchCount} {t("BATTLES")}
+                  </small>
                 </div>
-              );
-            })}
-            <div
-              className="bracket-stage-label champion-label"
-              style={{ left: `${championX}px` }}
-            >
+              </foreignObject>
+            );
+          })}
+          <foreignObject height="66" width={cardWidth} x={championX} y="20">
+            <div className="bracket-stage-label champion-label">
               <span>{t("FINAL")}</span>
               <small>{t("THE ONE")}</small>
             </div>
-            {nodes.map((node) => (
+          </foreignObject>
+          {nodes.map((node) => (
+            <foreignObject
+              height={cardHeight}
+              key={node.match.id}
+              width={cardWidth}
+              x={boardLeft + node.stage * columnStep}
+              y={node.y - cardHeight / 2}
+            >
               <article
                 className={`bracket-match ${node.match.carryMatch ? "carry" : ""}`}
-                key={node.match.id}
-                style={{
-                  left: `${boardLeft + node.stage * columnStep}px`,
-                  top: `${node.y - cardHeight / 2}px`,
-                  width: `${cardWidth}px`,
-                  height: `${cardHeight}px`,
-                }}
               >
                 <div className="bracket-match-meta">
                   <span>
@@ -216,19 +222,20 @@ export function TournamentBracket({
                   </span>
                   {node.match.carryMatch && <b>{t("PLAYOFF")}</b>}
                 </div>
-                <BracketTrack
-                  item={itemById.get(node.match.winnerId)}
-                  winner
-                />
+                <BracketTrack item={itemById.get(node.match.winnerId)} winner />
                 <div className="bracket-versus">VS</div>
                 <BracketTrack item={itemById.get(node.match.loserId)} />
               </article>
-            ))}
-            {root && (
-              <article
-                className="bracket-champion-card"
-                style={{ left: `${championX}px`, top: `${root.y - 132}px` }}
-              >
+            </foreignObject>
+          ))}
+          {root && (
+            <foreignObject
+              height="264"
+              width={cardWidth}
+              x={championX}
+              y={root.y - 132}
+            >
+              <article className="bracket-champion-card">
                 <span>♛</span>
                 {champion && <RemoteImage src={champion.thumbnailUrl} alt="" />}
                 <div>
@@ -237,9 +244,9 @@ export function TournamentBracket({
                   <p>{champion?.channel}</p>
                 </div>
               </article>
-            )}
-          </div>
-        </div>
+            </foreignObject>
+          )}
+        </svg>
       </div>
     </section>
   );
@@ -255,7 +262,11 @@ function BracketTrack({
   const { t } = useI18n();
   return (
     <div className={`bracket-track ${winner ? "winner" : "loser"}`}>
-      {item ? <RemoteImage src={item.thumbnailUrl} alt="" /> : <span className="missing-track">?</span>}
+      {item ? (
+        <RemoteImage src={item.thumbnailUrl} alt="" />
+      ) : (
+        <span className="missing-track">?</span>
+      )}
       <div>
         <strong>{item?.title ?? t("Deleted track")}</strong>
         <small>{item?.channel}</small>

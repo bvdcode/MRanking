@@ -66,10 +66,7 @@ function TournamentVisual() {
       </div>
       <div className="visual-round round-a">
         {labels.map((label, index) => (
-          <div
-            key={label}
-            style={{ "--delay": `${index * 60}ms` } as React.CSSProperties}
-          >
+          <div className={`visual-delay-${index}`} key={label}>
             <i className={`neutral-thumb neutral-${index % 4}`} />
             <span>{label}</span>
           </div>

@@ -3,6 +3,7 @@
 import { isYouTubeSource, pickRandomVideoIds } from "../../domain/pack";
 import { useI18n } from "../../i18n/I18nContext";
 import type { EditablePack } from "../../types";
+import { FlowBack } from "../shared/FlowBack";
 import { RemoteImage } from "../shared/RemoteImage";
 import { COVER_EMOJIS } from "./constants";
 

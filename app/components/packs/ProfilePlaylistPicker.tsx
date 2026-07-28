@@ -1,6 +1,9 @@
 "use client";
 
-import type { ProfilePlaylistPreview, YouTubeProfilePreview } from "../../../lib/types";
+import type {
+  ProfilePlaylistPreview,
+  YouTubeProfilePreview,
+} from "../../../lib/types";
 import { useI18n } from "../../i18n/I18nContext";
 import { FlowBack } from "../shared/FlowBack";
 import { RemoteImage } from "../shared/RemoteImage";
@@ -19,15 +22,12 @@ export function ProfilePlaylistPicker({
   const { t } = useI18n();
   return (
     <div className="profile-playlist-picker">
-      <FlowBack
-        label="Back"
-        onClick={onBack}
-      />
+      <FlowBack label="Back" onClick={onBack} />
       <div className="profile-import-head">
         <div className="profile-import-avatar">
           <span className="profile-avatar-placeholder" aria-hidden="true" />
           {profile.avatarUrl && (
-            <img
+            <RemoteImage
               src={profile.avatarUrl}
               alt=""
               onError={(event) => {
@@ -62,7 +62,7 @@ export function ProfilePlaylistPicker({
             >
               <span className="profile-playlist-art">
                 {playlist.thumbnailUrl ? (
-                  <img
+                  <RemoteImage
                     src={playlist.thumbnailUrl}
                     alt=""
                     onLoad={(event) => {

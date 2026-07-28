@@ -39,6 +39,32 @@ async function readApplicationSource() {
   return sources.join("\n");
 }
 
+async function readStyles() {
+  const paths = [
+    "../app/styles/base.css",
+    "../app/styles/features.css",
+    "../app/styles/responsive.css",
+  ];
+  const sources = await Promise.all(
+    paths.map((path) => readFile(new URL(path, import.meta.url), "utf8")),
+  );
+  return sources.join("\n");
+}
+
+async function readYouTubeSource() {
+  const paths = [
+    "../lib/youtube/index.ts",
+    "../lib/youtube/client.ts",
+    "../lib/youtube/playlist.ts",
+    "../lib/youtube/profile.ts",
+    "../lib/youtube/renderers.ts",
+  ];
+  const sources = await Promise.all(
+    paths.map((path) => readFile(new URL(path, import.meta.url), "utf8")),
+  );
+  return sources.join("\n");
+}
+
 test("ships the redesigned application shell", async () => {
   const [page, layout, client] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
@@ -57,10 +83,7 @@ test("ships the redesigned application shell", async () => {
 test("client includes the private playlist-to-tournament flow", async () => {
   const source = await readApplicationSource();
 
-  assert.match(
-    source,
-    /type View = "home" \| "packs" \| "modes" \| "hill"/,
-  );
+  assert.match(source, /type View = "home" \| "packs" \| "modes" \| "hill"/);
   assert.match(source, /Create account/);
   assert.match(source, /onRegister/);
   assert.doesNotMatch(source, /AdminView|onAdmin|\/api\/admin/);
@@ -94,7 +117,10 @@ test("client includes the private playlist-to-tournament flow", async () => {
   assert.match(source, /selectRandom\("all"\)/);
   assert.match(source, /className="import-issues"/);
   assert.match(source, /window\.requestAnimationFrame/);
-  assert.match(source, /window\.scrollTo\(\{ top: 0, left: 0, behavior: "auto" \}\)/);
+  assert.match(
+    source,
+    /window\.scrollTo\(\{ top: 0, left: 0, behavior: "auto" \}\)/,
+  );
   assert.match(source, /Paste playlist or profile link/);
   assert.match(source, /Save pack/);
   assert.match(source, /Back to playlists/);
@@ -141,10 +167,7 @@ test("client includes the private playlist-to-tournament flow", async () => {
 });
 
 test("home supporting copy is deliberately larger", async () => {
-  const styles = await readFile(
-    new URL("../app/globals.css", import.meta.url),
-    "utf8",
-  );
+  const styles = await readStyles();
   assert.match(styles, /\.home-copy \.eyebrow \{ font-size: 13px/);
   assert.match(styles, /\.home-theses span \{[^}]*font-size: 11px/);
   assert.match(styles, /\.home-flow \{[^}]*font-size: 11px/);
@@ -155,23 +178,23 @@ test("mobile layout is touch-first and respects phone safe areas", async () => {
   const [layout, client, styles] = await Promise.all([
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readApplicationSource(),
-    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readStyles(),
   ]);
   assert.match(layout, /viewportFit: "cover"/);
   assert.match(styles, /@media \(max-width: 640px\)/);
   assert.match(styles, /env\(safe-area-inset-bottom\)/);
   assert.match(styles, /\.duel-board \{ grid-template-columns: 1fr/);
-  assert.match(styles, /\.profile-playlist-grid \{ grid-template-columns: repeat\(2/);
-  assert.match(styles, /\.bracket-fit-height \{ width: max\(100%,var\(--bracket-scaled-width/);
+  assert.match(
+    styles,
+    /\.profile-playlist-grid \{ grid-template-columns: repeat\(2/,
+  );
+  assert.match(client, /<foreignObject/);
   assert.match(client, /element\.clientWidth <= 720/);
-  assert.match(client, /"--bracket-scaled-width"/);
+  assert.match(client, /width=\{boardWidth \* fitScale\}/);
 });
 
 test("profile playlist picker keeps artwork square and titles readable", async () => {
-  const styles = await readFile(
-    new URL("../app/globals.css", import.meta.url),
-    "utf8",
-  );
+  const styles = await readStyles();
   assert.match(styles, /\.profile-playlist-art \{[^}]*aspect-ratio: 1 \/ 1/);
   assert.match(styles, /\.profile-playlist-art img \{[^}]*object-fit: cover/);
   assert.match(styles, /data-art-shape="square"[^}]*width: 88%/);
@@ -198,7 +221,16 @@ test("language control translates the whole interface", async () => {
 });
 
 test("server supports self-registration, ownership and durable storage", async () => {
-  const [server, auth, packs, results, schema, resultMigration, roleMigration, hosting] = await Promise.all([
+  const [
+    server,
+    auth,
+    packs,
+    results,
+    schema,
+    resultMigration,
+    roleMigration,
+    hosting,
+  ] = await Promise.all([
     readFile(new URL("../lib/server.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/api/auth/route.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/api/packs/route.ts", import.meta.url), "utf8"),
@@ -250,10 +282,7 @@ test("server supports self-registration, ownership and durable storage", async (
 });
 
 test("YouTube importer handles current and classic playlist renderers", async () => {
-  const importer = await readFile(
-    new URL("../lib/youtube.ts", import.meta.url),
-    "utf8",
-  );
+  const importer = await readYouTubeSource();
   assert.match(importer, /youtubei\/v1\/browse/);
   assert.match(importer, /youtubei\.googleapis\.com/);
   assert.match(importer, /"accept-language": "en-US,en;q=0\.9"/);
@@ -271,7 +300,10 @@ test("YouTube importer handles current and classic playlist renderers", async ()
   assert.match(importer, /collectMusicPlaylistPage/);
   assert.match(importer, /musicResponsiveListItemRenderer/);
   assert.match(importer, /musicResponsiveListItemFlexColumnRenderer/);
-  assert.match(importer, /const \[webCollection, musicCollection\] = await Promise\.all/);
+  assert.match(
+    importer,
+    /const \[webCollection, musicCollection\] = await Promise\.all/,
+  );
   assert.doesNotMatch(importer, /skippedItems/);
   assert.match(importer, /issues\.push/);
   assert.match(importer, /reason: "duplicate"/);

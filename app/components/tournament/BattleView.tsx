@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { ActiveRun, Pack, PackItem, SourceType } from "../../../lib/types";
 import { mediaEmbedUrl } from "../../domain/pack";
 import { useI18n } from "../../i18n/I18nContext";
+import { FlowBack } from "../shared/FlowBack";
 import { RemoteImage } from "../shared/RemoteImage";
 
 export function BattleView({
@@ -40,10 +41,15 @@ export function BattleView({
       if (
         event.target instanceof HTMLInputElement ||
         event.target instanceof HTMLTextAreaElement
-      )
+      ) {
         return;
-      if (event.key.toLowerCase() === "a") onPick(left.id);
-      if (event.key.toLowerCase() === "b") onPick(right.id);
+      }
+      if (event.key.toLowerCase() === "a") {
+        onPick(left.id);
+      }
+      if (event.key.toLowerCase() === "b") {
+        onPick(right.id);
+      }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
@@ -62,9 +68,12 @@ export function BattleView({
         </div>
         <span>{pack.name}</span>
       </div>
-      <div className="round-meter">
-        <i style={{ width: `${progress}%` }} />
-      </div>
+      <progress
+        aria-label={t("Full tournament bracket")}
+        className="round-meter"
+        max={100}
+        value={progress}
+      />
       <div className="battle-title">
         <h2>{t("Choose the one that stays")}</h2>
       </div>
