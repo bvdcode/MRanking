@@ -47,3 +47,7 @@ tsconfig.tsbuildinfo
 
 # local source material used during prototyping
 /Themes inputs/
+
+# local instructions and working notes
+/AGENTS.md
+/notes/
