@@ -1,7 +1,7 @@
 import type { PlaylistPreview } from "./types";
 import type { JsonObject, JsonValue } from "./json-value";
 
-const YANDEX_PROXY_ORIGIN = "http://92.38.49.211:8787";
+const YANDEX_PROXY_ORIGIN = "http://horse.datavale.org:8787";
 
 type YandexLocation =
   | { kind: "user"; userId: string; playlistKind: string }

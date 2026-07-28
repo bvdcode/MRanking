@@ -330,7 +330,7 @@ test("Spotify and Yandex Music import public playlists", async () => {
   assert.match(spotify, /open\.spotify\.com\/oembed/);
   assert.match(spotify, /sourceType: "spotify"/);
   assert.doesNotMatch(spotify, /skippedItems/);
-  assert.match(yandex, /92\.38\.49\.211:8787/);
+  assert.match(yandex, /horse\.datavale\.org:8787/);
   assert.match(yandex, /richTracks/);
   assert.match(yandex, /sourceType: "yandexMusic"/);
   assert.doesNotMatch(yandex, /skippedItems/);
