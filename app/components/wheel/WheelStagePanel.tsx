@@ -1,9 +1,8 @@
 "use client";
 
-import type { RefCallback } from "react";
+import type { ReactNode, RefCallback } from "react";
 import type { PackItem, WheelRun } from "../../../lib/types";
 import {
-  displayWheelChance,
   wheelEntryLabel,
   type WheelEntry,
   type WheelSegment,
@@ -22,10 +21,12 @@ type WheelStagePanelProps = {
   complete: boolean;
   spinning: boolean;
   spinPhase: WheelSpinSample["phase"] | "idle";
+  showSoClose: boolean;
   wheelRotationRef: RefCallback<SVGGElement>;
   hoveredId: string | null;
   landedId: string | null;
   labelsVisible: boolean;
+  toolbar?: ReactNode;
   onHover: (itemId: string | null) => void;
   onSpin: () => void | Promise<void>;
   onSkip: () => void;
@@ -48,10 +49,12 @@ export function WheelStagePanel({
   complete,
   spinning,
   spinPhase,
+  showSoClose,
   wheelRotationRef,
   hoveredId,
   landedId,
   labelsVisible,
+  toolbar,
   onHover,
   onSpin,
   onSkip,
@@ -66,20 +69,25 @@ export function WheelStagePanel({
   const landedColor = landed
     ? entries.find((entry) => entry.itemId === landed.id)?.color
     : undefined;
-  const totalChance = activeEntries.reduce(
-    (total, entry) => total + entry.chance,
-    0,
-  );
   const actionsVisible =
     !archived &&
     (run.state.status === "active" ||
       (run.state.mode === "lastOneStanding" &&
         run.state.undoStack.length > 0));
+  const sideVisible = Boolean(
+    toolbar ||
+      (landed && !complete) ||
+      actionsVisible ||
+      !labelsVisible,
+  );
   return (
     <aside className="wheel-stage-panel">
-      <div
-        className={`wheel-stage ${spinning ? "spinning" : ""} ${spinPhase === "suspense" ? "suspense" : ""} ${landedId ? "landed" : ""}`}
-      >
+      <div className={`wheel-stage-layout ${sideVisible ? "" : "stage-only"}`}>
+        <div className="wheel-stage-column">
+          <div
+            className={`wheel-stage ${spinning ? "spinning" : ""} ${showSoClose ? "suspense" : ""} ${landedId ? "landed" : ""}`}
+            data-spin-phase={spinPhase}
+          >
         <span className="wheel-pointer" aria-hidden="true">
           <i />
         </span>
@@ -128,6 +136,15 @@ export function WheelStagePanel({
           </g>
         </svg>
 
+        <div
+          className={`wheel-so-close ${showSoClose ? "visible" : ""}`}
+          role="status"
+          aria-hidden={!showSoClose}
+        >
+          <b>{t("SO CLOSE")}</b>
+          <small>{t("LAST SECONDS")}</small>
+        </div>
+
         {!archived && run.state.status === "active" && (
           <button
             className="wheel-spin-button"
@@ -135,14 +152,10 @@ export function WheelStagePanel({
             onClick={() => void onSpin()}
           >
             <span>
-              {spinning
-                ? t(spinPhase === "suspense" ? "SO CLOSE" : "SPINNING")
-                : t("SPIN")}
+              {spinning ? t("SPINNING") : t("SPIN")}
             </span>
             <small>
-              {spinning && spinPhase === "suspense"
-                ? t("LAST SECONDS")
-                : `${activeEntries.length} ${t("ENTRIES")}`}
+              {`${activeEntries.length} ${t("ENTRIES")}`}
             </small>
           </button>
         )}
@@ -152,27 +165,35 @@ export function WheelStagePanel({
             <small>{t("WINNER")}</small>
           </div>
         )}
-      </div>
-
-      {landed && !complete && (
-        <div className="wheel-landed-card" role="status">
-          <span>
-            <svg viewBox="0 0 12 78" width="12" height="78" aria-hidden="true">
-              <rect width="12" height="78" fill={landedColor ?? "#b8ff2c"} />
-            </svg>
-          </span>
-          <div>
-            <small>{t("REMOVED")}</small>
-            <b>{landed.title}</b>
-            <p>{landed.channel}</p>
           </div>
         </div>
-      )}
 
-      {actionsVisible && (
-        <div
-          className={`wheel-actions-panel ${run.state.status === "complete" ? "completed" : ""}`}
-        >
+        {sideVisible && (
+          <div className="wheel-stage-side">
+            {toolbar}
+            {landed && !complete && (
+              <div className="wheel-landed-card" role="status">
+                <span aria-hidden="true">
+                  <svg viewBox="0 0 10 78" preserveAspectRatio="none">
+                    <rect
+                      width="10"
+                      height="78"
+                      fill={landedColor ?? "#b8ff2c"}
+                    />
+                  </svg>
+                </span>
+                <div>
+                  <small>{t("REMOVED")}</small>
+                  <b>{landed.title}</b>
+                  <p>{landed.channel}</p>
+                </div>
+              </div>
+            )}
+
+            {actionsVisible && (
+              <div
+                className={`wheel-actions-panel ${run.state.status === "complete" ? "completed" : ""}`}
+              >
           {run.state.status === "active" && (spinning ? (
             <>
               <button className="wheel-skip-spin" onClick={onSkip}>
@@ -225,19 +246,16 @@ export function WheelStagePanel({
               )}
             </>
           )}
-        </div>
-      )}
+              </div>
+            )}
 
-      <div className="wheel-chance-summary">
-        <span>{t("TOTAL CHANCE")}</span>
-        <b>{displayWheelChance(totalChance)}</b>
-        <small>
-          {t(
-            labelsVisible
-              ? "Labels are shown on the wheel."
-              : "Labels are hidden above 64 entries.",
-          )}
-        </small>
+            {!labelsVisible && (
+              <small className="wheel-label-note">
+                {t("Labels are hidden above 64 entries.")}
+              </small>
+            )}
+          </div>
+        )}
       </div>
     </aside>
   );

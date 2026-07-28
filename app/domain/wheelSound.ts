@@ -15,6 +15,7 @@ export class WheelSoundEngine {
   private spinSource: AudioBufferSourceNode | null = null;
   private spinGain: GainNode | null = null;
   private spinFilter: BiquadFilterNode | null = null;
+  private spinSpeed = 0;
 
   constructor(options: WheelSoundOptions = {}) {
     this.enabled = options.enabled ?? true;
@@ -32,7 +33,7 @@ export class WheelSoundEngine {
     this.volume = this.clampVolume(volume);
     if (this.spinGain && this.context) {
       this.spinGain.gain.setTargetAtTime(
-        this.volume * 0.035,
+        this.spinGainForSpeed(this.spinSpeed),
         this.context.currentTime,
         0.03,
       );
@@ -99,7 +100,7 @@ export class WheelSoundEngine {
     filter.Q.value = 0.7;
     gain.gain.setValueAtTime(0.0001, context.currentTime);
     gain.gain.exponentialRampToValueAtTime(
-      Math.max(0.0001, this.volume * 0.035),
+      this.spinGainForSpeed(0),
       context.currentTime + 0.09,
     );
     source.connect(filter).connect(gain).connect(context.destination);
@@ -114,13 +115,15 @@ export class WheelSoundEngine {
       return;
     }
     const normalized = Math.min(1, Math.max(0, speed));
+    this.spinSpeed = normalized;
     const time = this.context.currentTime;
-    this.spinSource.playbackRate.setTargetAtTime(0.65 + normalized * 1.5, time, 0.04);
-    this.spinFilter.frequency.setTargetAtTime(300 + normalized * 1_350, time, 0.04);
+    const responseTime = normalized < 0.12 ? 0.065 : 0.04;
+    this.spinSource.playbackRate.setTargetAtTime(0.45 + normalized * 1.35, time, responseTime);
+    this.spinFilter.frequency.setTargetAtTime(220 + normalized * 1_180, time, responseTime);
     this.spinGain.gain.setTargetAtTime(
-      Math.max(0.0001, this.volume * (0.018 + normalized * 0.035)),
+      this.spinGainForSpeed(normalized),
       time,
-      0.04,
+      responseTime,
     );
   }
 
@@ -131,6 +134,7 @@ export class WheelSoundEngine {
     this.spinSource = null;
     this.spinGain = null;
     this.spinFilter = null;
+    this.spinSpeed = 0;
     if (!source || !gain || !context) {
       return;
     }
@@ -179,6 +183,11 @@ export class WheelSoundEngine {
 
   private clampVolume(volume: number) {
     return Math.min(1, Math.max(0, Number.isFinite(volume) ? volume : 0.55));
+  }
+
+  private spinGainForSpeed(speed: number) {
+    const normalized = Math.min(1, Math.max(0, speed));
+    return Math.max(0.0001, this.volume * (0.004 + normalized * 0.044));
   }
 
   private getContext() {

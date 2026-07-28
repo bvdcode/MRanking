@@ -36,7 +36,13 @@ test("wheel mode supports weighted spins, elimination, sound and durable history
   assert.match(source, /quickSelectWheelEntries/);
   assert.match(source, /chanceDrafts/);
   assert.match(source, /wheelResultAsRun/);
+  assert.match(source, /showSoClose/);
+  assert.match(source, /wheel-entry-color/);
+  assert.match(source, /matching\.filter\(isActive\)/);
+  assert.doesNotMatch(source, /t\("TOTAL CHANCE"\)/);
   assert.match(wheel, /SUSPENSE_CHANCE = 0\.05/);
+  assert.match(wheel, /TURNS_PER_SECOND = 0\.4/);
+  assert.match(wheel, /shouldShowWheelSoClose/);
   assert.match(wheel, /chooseWeightedWheelEntry/);
   assert.match(wheel, /targetRotationForSegment/);
   assert.match(wheel, /export function skipWheelSpin[\s\S]*\.\.\.plan/);

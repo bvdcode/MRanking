@@ -110,16 +110,6 @@ export function WheelView({
         eliminatedCount={eliminatedCount}
       />
 
-      {!archived && run.state.status === "active" && (
-        <WheelToolbar
-          run={run}
-          settings={settings}
-          spinning={spinState.spinning}
-          onMode={editor.changeMode}
-          onSettings={editor.updateSettings}
-        />
-      )}
-
       {complete && winner && (
         <WheelWinner
           pack={pack}
@@ -166,10 +156,22 @@ export function WheelView({
           complete={complete}
           spinning={spinState.spinning}
           spinPhase={spinState.spinPhase}
+          showSoClose={spinState.showSoClose}
           wheelRotationRef={spinState.wheelRotationRef}
           hoveredId={editor.hoveredId}
           landedId={spinState.landedId}
           labelsVisible={labelsVisible}
+          toolbar={
+            !archived && run.state.status === "active" ? (
+              <WheelToolbar
+                run={run}
+                settings={settings}
+                spinning={spinState.spinning}
+                onMode={editor.changeMode}
+                onSettings={editor.updateSettings}
+              />
+            ) : undefined
+          }
           onHover={editor.setHoveredId}
           onSpin={startSpin}
           onSkip={spinState.skipSpinning}

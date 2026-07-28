@@ -11,6 +11,7 @@ import {
   normalizedAngularSpeed,
   positiveModulo,
   sampleWheelSpin,
+  shouldShowWheelSoClose,
   skipWheelSpin,
   type WheelEntry,
   type WheelSpinPlan,
@@ -42,6 +43,7 @@ export function useWheelSpin({
   const [spinPhase, setSpinPhase] = useState<
     WheelSpinSample["phase"] | "idle"
   >("idle");
+  const [showSoClose, setShowSoClose] = useState(false);
   const [landedId, setLandedId] = useState<string | null>(null);
   const frameRef = useRef<number | null>(null);
   const spinPlanRef = useRef<WheelSpinPlan | null>(null);
@@ -50,6 +52,7 @@ export function useWheelSpin({
   const boundaryAnglesRef = useRef<number[]>([]);
   const previousFrameAtRef = useRef(0);
   const spinPhaseRef = useRef<WheelSpinSample["phase"] | "idle">("idle");
+  const showSoCloseRef = useRef(false);
   const soundRef = useRef<WheelSoundEngine | null>(null);
   const spinTokenRef = useRef(0);
   const runRef = useRef(run);
@@ -119,6 +122,8 @@ export function useWheelSpin({
     setSpinning(false);
     spinPhaseRef.current = "idle";
     setSpinPhase("idle");
+    showSoCloseRef.current = false;
+    setShowSoClose(false);
     spinPlanRef.current = null;
     setLandedId(plan.winnerId);
 
@@ -182,6 +187,11 @@ export function useWheelSpin({
         }
         const now = Date.now();
         const sample = sampleWheelSpin(activePlan, now);
+        const nextShowSoClose = shouldShowWheelSoClose(activePlan, now);
+        if (nextShowSoClose !== showSoCloseRef.current) {
+          showSoCloseRef.current = nextShowSoClose;
+          setShowSoClose(nextShowSoClose);
+        }
         if (sample.phase !== spinPhaseRef.current) {
           spinPhaseRef.current = sample.phase;
           setSpinPhase(sample.phase);
@@ -227,9 +237,11 @@ export function useWheelSpin({
     rotationRef.current = startRotation;
     setWheelRotation(startRotation);
     setLandedId(null);
+    showSoCloseRef.current = false;
+    setShowSoClose(false);
     setSpinning(true);
-    spinPhaseRef.current = "accelerating";
-    setSpinPhase("accelerating");
+    spinPhaseRef.current = "coasting";
+    setSpinPhase("coasting");
     await soundRef.current?.resume().catch(() => {
       // Audio permission failures must never prevent the visual spin.
     });
@@ -277,6 +289,8 @@ export function useWheelSpin({
     setSpinning(false);
     spinPhaseRef.current = "idle";
     setSpinPhase("idle");
+    showSoCloseRef.current = false;
+    setShowSoClose(false);
     rotationRef.current = runRef.current.state.rotation;
     setWheelRotation(runRef.current.state.rotation);
   }, [setWheelRotation]);
@@ -291,12 +305,15 @@ export function useWheelSpin({
       Date.now(),
       850,
     );
+    showSoCloseRef.current = false;
+    setShowSoClose(false);
     soundRef.current?.tick(1);
   }, [spinning]);
 
   return {
     spinning,
     spinPhase,
+    showSoClose,
     wheelRotationRef,
     landedId,
     spin,

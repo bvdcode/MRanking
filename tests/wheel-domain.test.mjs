@@ -71,18 +71,45 @@ test("skip and suspense never change the preselected winner", () => {
   assert.ok(plan);
   assert.equal(plan.suspense, true);
 
-  const suspenseSample = wheel.sampleWheelSpin(plan, 4_500);
-  assert.equal(suspenseSample.phase, "suspense");
+  const suspenseSample = wheel.sampleWheelSpin(plan, 5_200);
+  assert.equal(suspenseSample.phase, "coasting");
+  assert.equal(wheel.shouldShowWheelSoClose(plan, 4_999), false);
+  assert.equal(wheel.shouldShowWheelSoClose(plan, 5_000), true);
   const complete = wheel.sampleWheelSpin(plan, 6_000);
   assert.equal(complete.rotation, plan.targetRotation);
+  assert.equal(wheel.shouldShowWheelSoClose(plan, 6_000), false);
 
-  const skipped = wheel.skipWheelSpin(plan, suspenseSample.rotation, 4_500, 800);
+  const skipped = wheel.skipWheelSpin(plan, suspenseSample.rotation, 5_200, 800);
   assert.equal(skipped.winnerId, plan.winnerId);
   assert.equal(skipped.suspense, false);
   assert.ok(skipped.targetRotation > suspenseSample.rotation + 359);
 });
 
-test("long spins accelerate, cruise visibly, and land at the exact target", () => {
+test("spins continuously decelerate and make the final second very slow", () => {
+  const entries = wheel.createWheelEntries(items);
+  const randomValues = [0.3, 0.99];
+  const plan = wheel.createWheelSpinPlan(entries, 0, 5, {
+    now: 1_000,
+    random: () => randomValues.shift() ?? 0.99,
+    suspenseChance: 0,
+    extraTurns: 2,
+  });
+  assert.ok(plan);
+
+  const samples = Array.from({ length: 6 }, (_, index) =>
+    wheel.sampleWheelSpin(plan, 1_000 + index * 1_000));
+  const perSecondTravel = samples.slice(1).map(
+    (sample, index) => sample.rotation - samples[index].rotation,
+  );
+  for (let index = 1; index < perSecondTravel.length; index += 1) {
+    assert.ok(perSecondTravel[index] < perSecondTravel[index - 1]);
+  }
+  assert.ok(perSecondTravel.at(-1) > 0);
+  assert.ok(perSecondTravel.at(-1) < 15);
+  assert.equal(samples.at(-1).rotation, plan.targetRotation);
+});
+
+test("long spins use fewer turns, keep moving, and land at the exact target", () => {
   const entries = wheel.createWheelEntries(items);
   const randomValues = [0.2, 0.5, 0.99];
   const plan = wheel.createWheelSpinPlan(entries, 23, 180, {
@@ -91,20 +118,25 @@ test("long spins accelerate, cruise visibly, and land at the exact target", () =
   });
   assert.ok(plan);
   assert.equal(plan.suspense, false);
-  assert.ok(plan.targetRotation - plan.startRotation > 240 * 360);
+  assert.ok(plan.targetRotation - plan.startRotation > 72 * 360);
+  assert.ok(plan.targetRotation - plan.startRotation < 75 * 360);
 
   const middle = wheel.sampleWheelSpin(plan, 100_000);
   const oneSecondLater = wheel.sampleWheelSpin(plan, 101_000);
   assert.equal(middle.phase, "coasting");
-  assert.ok(oneSecondLater.rotation - middle.rotation > 300);
-  assert.ok(middle.progress > 0.45 && middle.progress < 0.55);
+  assert.ok(oneSecondLater.rotation - middle.rotation > 80);
+  assert.ok(oneSecondLater.rotation - middle.rotation < 250);
+  assert.ok(middle.progress > 0.7 && middle.progress < 0.8);
+
+  const finalSecond = wheel.sampleWheelSpin(plan, 189_000);
+  assert.ok(plan.targetRotation - finalSecond.rotation < 2);
 
   const complete = wheel.sampleWheelSpin(plan, 190_000);
   assert.equal(complete.done, true);
   assert.equal(complete.rotation, plan.targetRotation);
 });
 
-test("long suspense spins reserve a slow hesitant final three seconds", () => {
+test("SO CLOSE is a final-second visual flag and never changes motion", () => {
   const entries = wheel.createWheelEntries(items);
   const randomValues = [0.2, 0.5, 0.01];
   const plan = wheel.createWheelSpinPlan(entries, 31, 180, {
@@ -115,14 +147,19 @@ test("long suspense spins reserve a slow hesitant final three seconds", () => {
   assert.ok(plan);
   assert.equal(plan.suspense, true);
 
-  const tailStart = wheel.sampleWheelSpin(plan, 182_000);
-  const hesitation = wheel.sampleWheelSpin(plan, 183_400);
-  const remainingAtTail = plan.targetRotation - tailStart.rotation;
-  assert.equal(tailStart.phase, "suspense");
-  assert.ok(remainingAtTail >= 360 && remainingAtTail <= 540);
-  assert.equal(hesitation.phase, "suspense");
-  assert.ok(hesitation.rotation > tailStart.rotation);
-  assert.ok(hesitation.rotation < plan.targetRotation);
+  assert.equal(wheel.shouldShowWheelSoClose(plan, 183_999), false);
+  assert.equal(wheel.shouldShowWheelSoClose(plan, 184_000), true);
+  const finalSecond = wheel.sampleWheelSpin(plan, 184_000);
+  assert.equal(finalSecond.phase, "coasting");
+  assert.ok(plan.targetRotation - finalSecond.rotation < 2);
+
+  const visualFlagDisabled = { ...plan, suspense: false };
+  for (const now of [5_000, 95_000, 184_000, 184_750, 185_000]) {
+    assert.equal(
+      wheel.sampleWheelSpin(plan, now).rotation,
+      wheel.sampleWheelSpin(visualFlagDisabled, now).rotation,
+    );
+  }
 
   const complete = wheel.sampleWheelSpin(plan, 185_000);
   assert.equal(complete.rotation, plan.targetRotation);
@@ -147,6 +184,14 @@ test("suspense always lands inside even the smallest legal sector", () => {
   const pointerAngle = wheel.positiveModulo(-plan.targetRotation);
   assert.ok(pointerAngle > segment.startAngle);
   assert.ok(pointerAngle < segment.endAngle);
+  assert.equal(
+    wheel.isWheelLandingNearBoundary(segment, pointerAngle),
+    true,
+  );
+  assert.equal(
+    wheel.isWheelLandingNearBoundary(segment, segment.midAngle),
+    false,
+  );
 });
 
 function sumActive(entries) {

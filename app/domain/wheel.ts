@@ -1,20 +1,23 @@
 import type { PackItem } from "../../lib/types";
 import {
-  accelerateCruiseProgress,
-  cruiseBrakeProgress,
-  suspenseTailProgress,
+  deceleratingWheelProgress,
+  isWheelLandingNearBoundary,
   wheelSliceGeometry,
 } from "./wheelGeometry";
 
 export {
   countWheelBoundaryCrossings,
+  isWheelLandingNearBoundary,
   normalizedAngularSpeed,
+  wheelLandingBoundaryDistance,
 } from "./wheelGeometry";
 
 export const WHEEL_TOTAL_PERCENT = 100;
 export const MIN_WHEEL_CHANCE = 0.01;
 export const SUSPENSE_CHANCE = 0.05;
-export const SUSPENSE_WINDOW_MS = 3_000;
+export const SUSPENSE_WINDOW_MS = 1_000;
+export const SO_CLOSE_BOUNDARY_DEGREES = 3;
+export const SO_CLOSE_APPROACH_DEGREES = 12;
 
 export type WheelMode = "classic" | "lastOneStanding";
 export type WheelSort = "original" | "title" | "chance";
@@ -49,8 +52,7 @@ type GeometryOptions = {
 };
 
 const PRECISION = 1_000_000_000;
-const TURNS_PER_SECOND = 1.35;
-const SUSPENSE_TAIL_DEGREES = 450;
+const TURNS_PER_SECOND = 0.4;
 
 function clamp(value: number, minimum: number, maximum: number) {
   return Math.min(maximum, Math.max(minimum, value));
@@ -298,6 +300,18 @@ export function targetRotationForSegment(
   return currentRotation + Math.max(1, Math.floor(extraTurns)) * 360 + alignment;
 }
 
+export function shouldShowWheelSoClose(
+  plan: WheelSpinPlan,
+  now = Date.now(),
+) {
+  const elapsedMs = now - plan.startedAt;
+  return plan.suspense
+    && elapsedMs >= Math.max(0, plan.durationMs - SUSPENSE_WINDOW_MS)
+    && elapsedMs < plan.durationMs
+    && plan.targetRotation - sampleWheelSpin(plan, now).rotation
+      <= SO_CLOSE_APPROACH_DEGREES;
+}
+
 export function createWheelSpinPlan(
   entries: WheelEntry[],
   currentRotation: number,
@@ -322,22 +336,35 @@ export function createWheelSpinPlan(
   }
   const duration = clamp(durationSeconds, 3, 180);
   const turnRandom = options.extraTurns === undefined ? random() : 0;
-  const suspense = random() < (options.suspenseChance ?? SUSPENSE_CHANCE);
-  const cruiseSeconds = Math.max(0, duration - SUSPENSE_WINDOW_MS / 1_000);
-  const randomTurns = cruiseSeconds >= 1.5 ? Math.floor(turnRandom * 3) : 0;
-  const extraTurns = options.extraTurns ?? (suspense
-    ? Math.max(1, Math.floor(cruiseSeconds * TURNS_PER_SECOND) + 1 + randomTurns)
-    : Math.max(6, Math.floor(duration * TURNS_PER_SECOND) + Math.floor(turnRandom * 3)));
-  const suspenseInset = Math.min(
-    2.4,
-    Math.max(
-      segment.sweepAngle * 0.08,
-      Math.min(0.12, segment.sweepAngle * 0.45),
-    ),
+  const requestSoClose = random() < clamp(
+    options.suspenseChance ?? SUSPENSE_CHANCE,
+    0,
+    1,
   );
-  const landingAngle = suspense
-    ? segment.startAngle + suspenseInset
+  const randomTurns = duration >= 6 ? Math.floor(turnRandom * 2) : 0;
+  const extraTurns = options.extraTurns ?? Math.max(
+    1,
+    Math.floor(duration * TURNS_PER_SECOND) + randomTurns,
+  );
+  const nearBoundaryThreshold = Math.min(
+    SO_CLOSE_BOUNDARY_DEGREES,
+    segment.sweepAngle * 0.2,
+  );
+  const boundaryInset = Math.max(
+    Number.EPSILON * 4,
+    nearBoundaryThreshold * 0.65,
+  );
+  const landingAngle = requestSoClose
+    ? (turnRandom < 0.5
+      ? segment.startAngle + boundaryInset
+      : segment.endAngle - boundaryInset)
     : segment.midAngle;
+  const suspense = requestSoClose
+    && isWheelLandingNearBoundary(
+      segment,
+      landingAngle,
+      SO_CLOSE_BOUNDARY_DEGREES,
+    );
   return {
     winnerId: winner.itemId,
     startRotation: currentRotation,
@@ -354,39 +381,17 @@ export function createWheelSpinPlan(
 
 export function sampleWheelSpin(plan: WheelSpinPlan, now = Date.now()): WheelSpinSample {
   const elapsedMs = clamp(now - plan.startedAt, 0, plan.durationMs);
-  let progress: number;
-  let phase: WheelSpinSample["phase"];
-  if (elapsedMs >= plan.durationMs) {
-    progress = 1;
-    phase = "complete";
-  } else if (plan.suspense) {
-    const windowMs = Math.min(SUSPENSE_WINDOW_MS, plan.durationMs);
-    const cruiseMs = plan.durationMs - windowMs;
-    const distance = plan.targetRotation - plan.startRotation;
-    const tailDistance = cruiseMs < 750
-      ? distance
-      : Math.min(distance, SUSPENSE_TAIL_DEGREES);
-    const cruiseProgress = 1 - tailDistance / distance;
-    if (elapsedMs < cruiseMs) {
-      const motion = accelerateCruiseProgress(elapsedMs, cruiseMs);
-      progress = cruiseProgress * motion.progress;
-      phase = motion.accelerating ? "accelerating" : "coasting";
-    } else {
-      const tailProgress = (elapsedMs - cruiseMs) / windowMs;
-      progress = cruiseProgress + (1 - cruiseProgress) * suspenseTailProgress(tailProgress);
-      phase = "suspense";
-    }
-  } else {
-    const motion = cruiseBrakeProgress(elapsedMs, plan.durationMs);
-    progress = motion.progress;
-    phase = motion.accelerating ? "accelerating" : "coasting";
-  }
+  const done = elapsedMs >= plan.durationMs;
+  const progress = done
+    ? 1
+    : deceleratingWheelProgress(elapsedMs, plan.durationMs);
+  const phase: WheelSpinSample["phase"] = done ? "complete" : "coasting";
   return {
     rotation: plan.startRotation + (plan.targetRotation - plan.startRotation) * progress,
     progress,
     elapsedMs,
     phase,
-    done: phase === "complete",
+    done,
   };
 }
 
@@ -428,8 +433,4 @@ export function sortWheelEntries(entries: WheelEntry[], sort: WheelSort) {
     );
   }
   return copy.sort((first, second) => first.position - second.position);
-}
-
-export function displayWheelChance(chance: number) {
-  return `${chance.toFixed(2)}%`;
 }

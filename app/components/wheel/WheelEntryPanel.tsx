@@ -130,6 +130,7 @@ export function WheelEntryPanel({
                 <input
                   type="checkbox"
                   checked={checked}
+                  aria-label={item.title}
                   disabled={
                     archived ||
                     spinning ||
@@ -140,25 +141,16 @@ export function WheelEntryPanel({
                     onToggle(entry.itemId, event.target.checked)
                   }
                 />
-                <span>
-                  <svg
-                    viewBox="0 0 21 21"
-                    width="21"
-                    height="21"
-                    aria-hidden="true"
-                  >
-                    <rect
-                      x="1"
-                      y="1"
-                      width="19"
-                      height="19"
-                      fill={checked ? entry.color : "#141714"}
-                      stroke={entry.color}
-                      strokeWidth="2"
-                    />
-                  </svg>
-                </span>
+                <span aria-hidden="true" />
               </label>
+              <span
+                className="wheel-entry-color"
+                aria-hidden="true"
+              >
+                <svg viewBox="0 0 8 46" preserveAspectRatio="none">
+                  <rect width="8" height="46" rx="4" fill={entry.color} />
+                </svg>
+              </span>
               <span className="wheel-entry-index">
                 {String(index + 1).padStart(2, "0")}
               </span>

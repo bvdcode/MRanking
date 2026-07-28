@@ -61,10 +61,21 @@ export function useWheelEditor({
   const activeEntries = useMemo(() => activeWheelEntries(entries), [entries]);
   const visibleEntries = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase();
-    return sortWheelEntries(entries, sort).filter((entry) =>
+    const matching = sortWheelEntries(entries, sort).filter((entry) =>
       !needle || wheelEntryLabel(entry).toLocaleLowerCase().includes(needle),
     );
-  }, [entries, query, sort]);
+    const isActive = (entry: WheelEntry) =>
+      run.state.status === "complete"
+        ? entry.itemId === run.state.winnerItemId
+        : entry.enabled && !entry.eliminated;
+
+    // Keep the chosen/active pool together and move every greyed-out row to
+    // the bottom without disturbing the user's selected sort inside each group.
+    return [
+      ...matching.filter(isActive),
+      ...matching.filter((entry) => !isActive(entry)),
+    ];
+  }, [entries, query, run.state.status, run.state.winnerItemId, sort]);
 
   const clearDrafts = useCallback(() => {
     setDraftState({ runId: run.id, values: {} });

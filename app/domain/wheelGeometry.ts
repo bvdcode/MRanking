@@ -4,11 +4,6 @@ export type WheelSliceGeometry = {
   labelY: number;
 };
 
-type MotionProgress = {
-  progress: number;
-  accelerating: boolean;
-};
-
 function clamp(value: number, minimum: number, maximum: number) {
   return Math.min(maximum, Math.max(minimum, value));
 }
@@ -49,85 +44,6 @@ export function wheelSliceGeometry(
   };
 }
 
-export function accelerateCruiseProgress(
-  elapsedMs: number,
-  durationMs: number,
-): MotionProgress {
-  if (durationMs <= 0 || elapsedMs >= durationMs) {
-    return { progress: 1, accelerating: false };
-  }
-  const elapsed = clamp(elapsedMs, 0, durationMs);
-  const acceleration = Math.min(700, durationMs * 0.3);
-  const area = durationMs - acceleration / 2;
-  if (elapsed < acceleration) {
-    return {
-      progress: (elapsed * elapsed) / (2 * acceleration * area),
-      accelerating: true,
-    };
-  }
-  return {
-    progress: (acceleration / 2 + elapsed - acceleration) / area,
-    accelerating: false,
-  };
-}
-
-export function cruiseBrakeProgress(
-  elapsedMs: number,
-  durationMs: number,
-): MotionProgress {
-  if (durationMs <= 0 || elapsedMs >= durationMs) {
-    return { progress: 1, accelerating: false };
-  }
-  const elapsed = clamp(elapsedMs, 0, durationMs);
-  let acceleration = Math.min(700, durationMs * 0.18);
-  let braking = Math.min(1_800, durationMs * 0.34);
-  if (acceleration + braking > durationMs * 0.8) {
-    const scale = (durationMs * 0.8) / (acceleration + braking);
-    acceleration *= scale;
-    braking *= scale;
-  }
-  const cruise = durationMs - acceleration - braking;
-  const area = cruise + (acceleration + braking) / 2;
-  if (elapsed < acceleration) {
-    return {
-      progress: (elapsed * elapsed) / (2 * acceleration * area),
-      accelerating: true,
-    };
-  }
-  if (elapsed <= acceleration + cruise) {
-    return {
-      progress: (acceleration / 2 + elapsed - acceleration) / area,
-      accelerating: false,
-    };
-  }
-  const brakingElapsed = elapsed - acceleration - cruise;
-  const traveled = acceleration / 2 + cruise
-    + brakingElapsed - (brakingElapsed * brakingElapsed) / (2 * braking);
-  return { progress: traveled / area, accelerating: false };
-}
-
-function smootherStep(value: number) {
-  return value * value * value * (value * (value * 6 - 15) + 10);
-}
-
-function easeOutCubic(value: number) {
-  return 1 - (1 - value) ** 3;
-}
-
-export function suspenseTailProgress(value: number) {
-  const progress = clamp(value, 0, 1);
-  if (progress < 0.36) {
-    return 0.38 * easeOutCubic(progress / 0.36);
-  }
-  if (progress < 0.52) {
-    return 0.38 + 0.04 * smootherStep((progress - 0.36) / 0.16);
-  }
-  if (progress < 0.78) {
-    return 0.42 + 0.34 * smootherStep((progress - 0.52) / 0.26);
-  }
-  return 0.76 + 0.24 * smootherStep((progress - 0.78) / 0.22);
-}
-
 export function countWheelBoundaryCrossings(
   boundaryAngles: number[],
   previousRotation: number,
@@ -154,4 +70,44 @@ export function normalizedAngularSpeed(
   }
   const degreesPerSecond = Math.abs(nextRotation - previousRotation) * 1_000 / elapsedMs;
   return clamp(degreesPerSecond / referenceDegreesPerSecond, 0, 1);
+}
+
+export function wheelLandingBoundaryDistance(
+  segment: { startAngle: number; sweepAngle: number },
+  landingAngle: number,
+) {
+  if (!Number.isFinite(segment.sweepAngle) || segment.sweepAngle <= 0) {
+    return null;
+  }
+  const relativeAngle = ((landingAngle - segment.startAngle) % 360 + 360) % 360;
+  if (relativeAngle > segment.sweepAngle + Number.EPSILON) {
+    return null;
+  }
+  return Math.max(0, Math.min(relativeAngle, segment.sweepAngle - relativeAngle));
+}
+
+export function isWheelLandingNearBoundary(
+  segment: { startAngle: number; sweepAngle: number },
+  landingAngle: number,
+  maximumDistance = 3,
+) {
+  const distance = wheelLandingBoundaryDistance(segment, landingAngle);
+  const threshold = Math.min(
+    Math.max(0, maximumDistance),
+    segment.sweepAngle * 0.2,
+  );
+  return distance !== null
+    && distance > Number.EPSILON
+    && distance <= threshold + Number.EPSILON;
+}
+
+export function deceleratingWheelProgress(elapsedMs: number, durationMs: number) {
+  if (durationMs <= 0 || elapsedMs >= durationMs) {
+    return 1;
+  }
+  const normalized = clamp(elapsedMs / durationMs, 0, 1);
+  // Short spins need a stronger slow finish. On long spins the exponent eases
+  // toward linear velocity decay so the wheel keeps visibly moving.
+  const velocityPower = 1 + Math.min(1, 6_000 / durationMs);
+  return 1 - (1 - normalized) ** (velocityPower + 1);
 }
