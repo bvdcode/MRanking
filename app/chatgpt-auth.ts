@@ -19,7 +19,9 @@ const CALLBACK_PATH = "/callback";
 export async function getChatGPTUser(): Promise<ChatGPTUser | null> {
   const requestHeaders = await headers();
   const email = requestHeaders.get(USER_EMAIL_HEADER);
-  if (!email) return null;
+  if (!email) {
+    return null;
+  }
 
   const encodedFullName = requestHeaders.get(USER_FULL_NAME_HEADER);
   const fullName =
@@ -39,7 +41,9 @@ export async function requireChatGPTUser(
   returnTo: string,
 ): Promise<ChatGPTUser> {
   const user = await getChatGPTUser();
-  if (user) return user;
+  if (user) {
+    return user;
+  }
 
   redirect(chatGPTSignInPath(returnTo));
 }
@@ -55,7 +59,9 @@ export function chatGPTSignOutPath(returnTo = "/"): string {
 }
 
 function safeRelativeReturnPath(value: string): string {
-  if (!value.startsWith("/") || value.startsWith("//")) return "/";
+  if (!value.startsWith("/") || value.startsWith("//")) {
+    return "/";
+  }
 
   let url: URL;
   try {
@@ -63,8 +69,12 @@ function safeRelativeReturnPath(value: string): string {
   } catch {
     return "/";
   }
-  if (url.origin !== "https://app.local") return "/";
-  if (isReservedAuthPath(url.pathname)) return "/";
+  if (url.origin !== "https://app.local") {
+    return "/";
+  }
+  if (isReservedAuthPath(url.pathname)) {
+    return "/";
+  }
 
   return `${url.pathname}${url.search}${url.hash}`;
 }

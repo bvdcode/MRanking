@@ -30,4 +30,4 @@ Tier List, Blind Ranking and the other rating formats are visual placeholders fo
 
 The project already uses the Sites-compatible Vinext layout. The build emits the worker bundle, D1 migrations and [`.openai/hosting.json`](.openai/hosting.json) with the `DB` and `AVATARS` bindings.
 
-Run `pnpm test` before publishing. The generated `/dist` directory and local Wrangler state are intentionally ignored by Git.
+Run `npm test` before publishing. The generated `/dist` directory and local Wrangler state are intentionally ignored by Git.

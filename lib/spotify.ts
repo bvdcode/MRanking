@@ -1,6 +1,5 @@
 import type { PlaylistPreview } from "./types";
-
-type JsonObject = Record<string, unknown>;
+import type { JsonObject, JsonValue } from "./json-value";
 
 const SPOTIFY_HOSTS = new Set([
   "open.spotify.com",
@@ -15,7 +14,9 @@ export async function parseSpotifyPlaylist(
   const submitted = parseUrl(input);
   const resolved = await resolveSpotifyUrl(submitted, signal);
   const playlistId = spotifyEntityId(resolved, "playlist");
-  if (!playlistId) throw new Error("This link does not contain a Spotify playlist");
+  if (!playlistId) {
+    throw new Error("This link does not contain a Spotify playlist");
+  }
 
   const sourceUrl = `https://open.spotify.com/playlist/${playlistId}`;
   const response = await fetch(
@@ -31,7 +32,9 @@ export async function parseSpotifyPlaylist(
     },
   );
   if (!response.ok) {
-    if (response.status === 404) throw new Error("The Spotify playlist was not found");
+    if (response.status === 404) {
+      throw new Error("The Spotify playlist was not found");
+    }
     throw new Error("Spotify did not return this playlist");
   }
 
@@ -92,11 +95,15 @@ export async function parseSpotifyPlaylist(
         `https://open.spotify.com/track/${track.id}`,
       )}`;
       const result = await fetch(url, { signal });
-      if (!result.ok) return playlistCover;
+      if (!result.ok) {
+        return playlistCover;
+      }
       const data = (await result.json()) as JsonObject;
       return stringValue(data.thumbnail_url) || playlistCover;
     } catch (error) {
-      if ((error as Error).name === "AbortError") throw error;
+      if ((error as Error).name === "AbortError") {
+        throw error;
+      }
       return playlistCover;
     }
   });
@@ -113,13 +120,17 @@ export async function parseSpotifyPlaylist(
     duration: track.duration,
   }));
 
-  if (items.length === 0)
+  if (items.length === 0) {
     throw new Error(
       "The Spotify playlist is private, unavailable or contains no playable tracks",
     );
+  }
 
   return {
-    title: stringValue(entity.name) || stringValue(entity.title) || "Spotify playlist",
+    title:
+      stringValue(entity.name) ||
+      stringValue(entity.title) ||
+      "Spotify playlist",
     sourceUrl,
     sourceType: "spotify",
     cover: playlistCover || items[0].thumbnailUrl,
@@ -137,13 +148,16 @@ function parseUrl(input: string) {
   } catch {
     throw new Error("Paste a valid Spotify playlist URL");
   }
-  if (!SPOTIFY_HOSTS.has(url.hostname.toLowerCase()))
+  if (!SPOTIFY_HOSTS.has(url.hostname.toLowerCase())) {
     throw new Error("Only Spotify links are supported here");
+  }
   return url;
 }
 
 async function resolveSpotifyUrl(url: URL, signal?: AbortSignal) {
-  if (url.hostname.toLowerCase() !== "spotify.link") return url;
+  if (url.hostname.toLowerCase() !== "spotify.link") {
+    return url;
+  }
   const response = await fetch(url, {
     signal,
     redirect: "follow",
@@ -168,7 +182,9 @@ function readNextData(html: string) {
   const match = html.match(
     /<script[^>]*id=["']__NEXT_DATA__["'][^>]*>([\s\S]*?)<\/script>/i,
   );
-  if (!match) throw new Error("Spotify did not return playlist tracks");
+  if (!match) {
+    throw new Error("Spotify did not return playlist tracks");
+  }
   try {
     return JSON.parse(match[1]) as JsonObject;
   } catch {
@@ -176,23 +192,29 @@ function readNextData(html: string) {
   }
 }
 
-function spotifyImage(value: unknown) {
-  if (!isObject(value) || !Array.isArray(value.sources)) return "";
+function spotifyImage(value: JsonValue) {
+  if (!isObject(value) || !Array.isArray(value.sources)) {
+    return "";
+  }
   const sources = value.sources.filter(isObject);
   return sources.length ? stringValue(sources.at(-1)?.url) : "";
 }
 
-function objectPath(root: unknown, path: string[]) {
+function objectPath(root: JsonValue, path: string[]) {
   let current = root;
   for (const key of path) {
-    if (!isObject(current)) return {};
+    if (!isObject(current)) {
+      return {};
+    }
     current = current[key];
   }
   return isObject(current) ? current : {};
 }
 
 function formatDuration(milliseconds: number) {
-  if (!milliseconds) return null;
+  if (!milliseconds) {
+    return null;
+  }
   const seconds = Math.round(milliseconds / 1_000);
   const minutes = Math.floor(seconds / 60);
   return `${minutes}:${String(seconds % 60).padStart(2, "0")}`;
@@ -217,14 +239,14 @@ async function mapWithConcurrency<T, R>(
   return results;
 }
 
-function isObject(value: unknown): value is JsonObject {
+function isObject(value: JsonValue): value is JsonObject {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function stringValue(value: unknown) {
+function stringValue(value: JsonValue) {
   return typeof value === "string" ? value : "";
 }
 
-function numberValue(value: unknown) {
+function numberValue(value: JsonValue) {
   return typeof value === "number" && Number.isFinite(value) ? value : 0;
 }
