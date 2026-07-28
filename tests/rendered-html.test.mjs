@@ -2,11 +2,48 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
+const applicationSources = [
+  "../app/MRankingApp.tsx",
+  "../app/components/MRankingApp.tsx",
+  "../app/components/auth/LoginModal.tsx",
+  "../app/components/home/HomeView.tsx",
+  "../app/components/hooks/usePrivateLibrary.ts",
+  "../app/components/hooks/useTournamentRun.ts",
+  "../app/components/layout/Header.tsx",
+  "../app/components/modes/KingLibraryView.tsx",
+  "../app/components/modes/ModeView.tsx",
+  "../app/components/packs/MusicSourceChooser.tsx",
+  "../app/components/packs/PackEditor.tsx",
+  "../app/components/packs/PackLibraryView.tsx",
+  "../app/components/packs/ProfilePlaylistPicker.tsx",
+  "../app/components/packs/UploadView.tsx",
+  "../app/components/shared/FlowBack.tsx",
+  "../app/components/shared/RemoteImage.tsx",
+  "../app/components/tournament/BattleView.tsx",
+  "../app/components/tournament/ResultView.tsx",
+  "../app/components/tournament/TournamentBracket.tsx",
+  "../app/domain/pack.ts",
+  "../app/domain/tournament.ts",
+  "../app/i18n/translations/ru.ts",
+  "../app/i18n/translations/uk.ts",
+  "../app/state/preferences.ts",
+  "../app/types.ts",
+];
+
+async function readApplicationSource() {
+  const sources = await Promise.all(
+    applicationSources.map((path) =>
+      readFile(new URL(path, import.meta.url), "utf8"),
+    ),
+  );
+  return sources.join("\n");
+}
+
 test("ships the redesigned application shell", async () => {
   const [page, layout, client] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/MRankingApp.tsx", import.meta.url), "utf8"),
+    readApplicationSource(),
   ]);
   assert.match(page, /MRanking — Upload\. Compare\. Crown\./);
   assert.match(layout, /MRanking tournament bracket/);
@@ -18,10 +55,7 @@ test("ships the redesigned application shell", async () => {
 });
 
 test("client includes the private playlist-to-tournament flow", async () => {
-  const source = await readFile(
-    new URL("../app/MRankingApp.tsx", import.meta.url),
-    "utf8",
-  );
+  const source = await readApplicationSource();
 
   assert.match(
     source,
@@ -86,16 +120,16 @@ test("client includes the private playlist-to-tournament flow", async () => {
   assert.match(source, /Tier List/);
   assert.match(source, /Blind Ranking/);
   assert.match(source, /Single Elimination/);
-  const packLibrary = source.slice(
-    source.indexOf("function PackLibraryView"),
-    source.indexOf("function KingLibraryView"),
+  const packLibrary = await readFile(
+    new URL("../app/components/packs/PackLibraryView.tsx", import.meta.url),
+    "utf8",
   );
   assert.match(packLibrary, /onEdit/);
   assert.match(packLibrary, /onDelete/);
   assert.doesNotMatch(packLibrary, /onStart|onContinue|PLAY NOW/);
-  const kingLibrary = source.slice(
-    source.indexOf("function KingLibraryView"),
-    source.indexOf("function PackCover"),
+  const kingLibrary = await readFile(
+    new URL("../app/components/modes/KingLibraryView.tsx", import.meta.url),
+    "utf8",
   );
   assert.match(kingLibrary, /onStart/);
   assert.match(kingLibrary, /onContinue/);
@@ -120,7 +154,7 @@ test("home supporting copy is deliberately larger", async () => {
 test("mobile layout is touch-first and respects phone safe areas", async () => {
   const [layout, client, styles] = await Promise.all([
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/MRankingApp.tsx", import.meta.url), "utf8"),
+    readApplicationSource(),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
   assert.match(layout, /viewportFit: "cover"/);
@@ -145,10 +179,7 @@ test("profile playlist picker keeps artwork square and titles readable", async (
 });
 
 test("language control translates the whole interface", async () => {
-  const source = await readFile(
-    new URL("../app/MRankingApp.tsx", import.meta.url),
-    "utf8",
-  );
+  const source = await readApplicationSource();
 
   assert.match(source, /рузкий/);
   assert.match(source, /УкрАинский/);
@@ -161,7 +192,8 @@ test("language control translates the whole interface", async () => {
   assert.match(source, /Modes: "Режими"/);
   assert.match(source, /"Rate it\.": "Оцени\."/);
   assert.match(source, /"Rate it\.": "Оціни\."/);
-  assert.match(source, /document\.documentElement\.lang = savedLanguage/);
+  assert.doesNotMatch(source, /localStorage/);
+  assert.match(source, /usePreferencesStore/);
   assert.match(source, /document\.documentElement\.lang = next/);
 });
 
